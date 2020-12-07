@@ -29,7 +29,7 @@ class AddPostActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_post)
 
         realm = Realm.getDefaultInstance()
-        tempText = intent.getStringExtra("tempString")
+        tempText = intent.getStringExtra("tempString").toString()
         temperatureTextView = findViewById(R.id.tempTextView)
         postEditText = findViewById(R.id.post_EditText)
         savePostButton = findViewById(R.id.uploadPost)
@@ -56,7 +56,7 @@ class AddPostActivity : AppCompatActivity() {
 
             val post = Post()
             val currentDate = LocalDate.now()
-            post.date = currentDate
+            //post.date = currentDate
             post.id = nextID
             post.text = postEditText.text.toString()
 

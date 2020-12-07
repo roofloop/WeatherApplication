@@ -8,6 +8,6 @@ import java.util.*
 open class Post (
     @PrimaryKey
     var id: Int? = null,
-    var date: LocalDate? = null,
+    //var date: LocalDate? = null,
     var text: String? = null
 ) : RealmObject()

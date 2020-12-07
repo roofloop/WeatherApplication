@@ -23,9 +23,9 @@ class PostsAdapter(private val context: Context?, private val postList: RealmRes
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val dateTextStringified = postList[position]?.date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
-            .toString()
-        holder.itemView.post_cell_date_text.text = dateTextStringified
+        //val dateTextStringified = postList[position]?.date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+        //  .toString()
+        holder.itemView.post_cell_date_text.text = position.toString()
     }
 
     override fun getItemCount(): Int {
@@ -35,5 +35,6 @@ class PostsAdapter(private val context: Context?, private val postList: RealmRes
     class ViewHolder(v: View?): RecyclerView.ViewHolder(v!!) {
         val dateText = itemView.findViewById<TextView>(R.id.post_cell_date_text)
     }
+
 
 }
