@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import io.realm.Realm
+import io.realm.RealmResults
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addPost: FloatingActionButton
     private lateinit var postsRecyclerView: RecyclerView
+    private lateinit var postList: ArrayList<Post>
+    private lateinit var realm: Realm
 
     private var temperatureTextView: TextView? = null
     private val client = OkHttpClient()
@@ -31,18 +35,30 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        realm = Realm.getDefaultInstance()
         addPost = findViewById(R.id.addPost)
         postsRecyclerView = findViewById(R.id.postsRecyclerView)
         val textView: TextView = findViewById<TextView>(R.id.temperature)
         temperatureTextView = textView;
 
         getWeatherAsync()
+        getAllPosts()
 
         addPost.setOnClickListener {
-            startActivity(Intent(this, AddPostActivity::class.java))
+            val intent = Intent(this@MainActivity, AddPostActivity::class.java)
+            intent.putExtra("tempString", tempString)
+            startActivity(intent)
             finish()
         }
 
+    }
+
+    private fun getAllPosts() {
+        postList.clear()
+        val results: RealmResults<Post> = realm.where(Post::class.java).findAll()
+        postsRecyclerView.adapter = PostsAdapter(this, results)
+        postsRecyclerView.adapter!!.notifyDataSetChanged()
     }
 
     private fun getWeatherAsync() {
