@@ -64,6 +64,10 @@ class AddPostActivity : AppCompatActivity() {
             realm.commitTransaction()
 
             Toast.makeText(this, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
+            val allPosts = realm.where(Post::class.java).findAll()
+            allPosts.forEach { post ->
+                println("!!! Post: ${post.id}, ${post.text}")
+            }
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         } catch (e: Exception) {

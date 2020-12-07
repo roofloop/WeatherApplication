@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import io.realm.Realm
+import io.realm.RealmConfiguration
 import io.realm.RealmResults
 import okhttp3.*
 import org.json.JSONObject
@@ -17,7 +20,7 @@ import java.io.IOException
 import kotlin.properties.Delegates
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnPostClickListener {
 
     private lateinit var addPost: FloatingActionButton
     private lateinit var postsRecyclerView: RecyclerView
@@ -45,6 +48,9 @@ class MainActivity : AppCompatActivity() {
         getWeatherAsync()
         getAllPosts()
 
+        postsRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Click listeners
         addPost.setOnClickListener {
             val intent = Intent(this@MainActivity, AddPostActivity::class.java)
             intent.putExtra("tempString", tempString)
@@ -52,12 +58,15 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+
     }
 
     private fun getAllPosts() {
+        postList = ArrayList()
         postList.clear()
         val results: RealmResults<Post> = realm.where(Post::class.java).findAll()
-        postsRecyclerView.adapter = PostsAdapter(this, results)
+        val adapter = PostsAdapter(this, results, this)
+        postsRecyclerView.adapter = adapter
         postsRecyclerView.adapter!!.notifyDataSetChanged()
     }
 
@@ -111,5 +120,9 @@ class MainActivity : AppCompatActivity() {
             temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
 
         }
+    }
+
+    override fun onItemClick(item: Post, position: Int) {
+        Toast.makeText(this, "Post Text: ${item.text}", Toast.LENGTH_SHORT).show()
     }
 }

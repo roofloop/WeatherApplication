@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.recyclerview.widget.RecyclerView
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.post_rv_layout.*
@@ -15,26 +16,39 @@ import java.text.Normalizer
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-class PostsAdapter(private val context: Context?, private val postList: RealmResults<Post>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+class PostsAdapter(private val context: Context, private val postList: RealmResults<Post>, var clickListener: OnPostClickListener) : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.post_rv_layout, parent, false)
         return ViewHolder(v)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         //val dateTextStringified = postList[position]?.date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
         //  .toString()
-        holder.itemView.post_cell_date_text.text = position.toString()
+        //val post = postList[position]
+        //holder.dateText.text = post?.id.toString()
+        postList.get(position)?.let { holder.initialize(it, clickListener) }
     }
 
     override fun getItemCount(): Int {
         return postList.count()
     }
 
-    class ViewHolder(v: View?): RecyclerView.ViewHolder(v!!) {
-        val dateText = itemView.findViewById<TextView>(R.id.post_cell_date_text)
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+        var dateText = itemView.findViewById<TextView>(R.id.post_cell_date_text)
+
+        fun initialize(post: Post, action: OnPostClickListener) {
+            dateText.text = post.text
+
+            itemView.setOnClickListener {
+                action.onItemClick(post, adapterPosition)
+            }
+        }
     }
 
+}
 
+interface OnPostClickListener {
+    fun onItemClick(item: Post, position: Int)
 }
