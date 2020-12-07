@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">WeatherApplication</string>
+    <string name="welcome">Welcome</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="sign_in">sign in</string>
+    <string name="background_image">Background image</string>
+    <string name="create_an_account">Create an Account</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
 </resources>
