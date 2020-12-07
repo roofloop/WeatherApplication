@@ -1,10 +1,13 @@
 package com.example.weatherapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import okhttp3.*
 import org.json.JSONObject
@@ -13,8 +16,11 @@ import kotlin.properties.Delegates
 
 
 class MainActivity : AppCompatActivity() {
-    private var temperatureTextView: TextView? = null
 
+    private lateinit var addPost: FloatingActionButton
+    private lateinit var postsRecyclerView: RecyclerView
+
+    private var temperatureTextView: TextView? = null
     private val client = OkHttpClient()
     private val API_URL =
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
@@ -25,16 +31,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
-        val getCurrentWeatherButton: Button = findViewById(R.id.getWeatherButton)
-        getCurrentWeatherButton?.setOnClickListener()
-        {
-            getWeatherAsync()
-        }
-
+        addPost = findViewById(R.id.addPost)
+        postsRecyclerView = findViewById(R.id.postsRecyclerView)
         val textView: TextView = findViewById<TextView>(R.id.temperature)
         temperatureTextView = textView;
+
+        getWeatherAsync()
+
+        addPost.setOnClickListener {
+            startActivity(Intent(this, AddPostActivity::class.java))
+            finish()
+        }
+
     }
 
     private fun getWeatherAsync() {
@@ -84,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
             tempString = weatherData.main.temp.toString()
             name = tempString as String
-            temperatureTextView?.text = "Temp in Sthlm is: $name Celsius"
+            temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
 
         }
     }
