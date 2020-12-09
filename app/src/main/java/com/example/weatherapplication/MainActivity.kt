@@ -3,10 +3,11 @@ package com.example.weatherapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import io.realm.Realm
@@ -16,13 +17,20 @@ import org.json.JSONObject
 import java.io.IOException
 import kotlin.properties.Delegates
 
+import com.example.weatherapplication.Activity.AddPostActivity
+import com.example.weatherapplication.Activity.SelectedActivity
+import kotlinx.android.synthetic.main.activity_main.*
+import com.example.weatherapplication.Model.Post
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var addPost: FloatingActionButton
-    private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postList: ArrayList<Post>
     private lateinit var realm: Realm
+    private lateinit var mAdapter: PostAdapter
+    private lateinit var mUploads: List<Post>
+
+
 
     private var temperatureTextView: TextView? = null
     private val client = OkHttpClient()
@@ -38,10 +46,12 @@ class MainActivity : AppCompatActivity() {
 
         realm = Realm.getDefaultInstance()
         addPost = findViewById(R.id.addPost)
-        postsRecyclerView = findViewById(R.id.postsRecyclerView)
-        val textView: TextView = findViewById<TextView>(R.id.temperature)
-        temperatureTextView = textView;
 
+        mUploads = mutableListOf()
+
+
+        val textView: TextView = findViewById(R.id.temperature)
+        temperatureTextView = textView;
         getWeatherAsync()
         getAllPosts()
 
@@ -49,16 +59,45 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this@MainActivity, AddPostActivity::class.java)
             intent.putExtra("tempString", tempString)
             startActivity(intent)
-            finish()
+
         }
 
+
+        //TODO: Change so it is a longClickListener on every object separately
+        addPost.setOnLongClickListener {
+
+            realm.beginTransaction()
+            realm.deleteAll()
+            realm.commitTransaction()
+
+            getAllPosts()
+
+            return@setOnLongClickListener true
+        }
     }
 
+
     private fun getAllPosts() {
-        postList.clear()
-        val results: RealmResults<Post> = realm.where(Post::class.java).findAll()
-        postsRecyclerView.adapter = PostsAdapter(this, results)
-        postsRecyclerView.adapter!!.notifyDataSetChanged()
+        postList = ArrayList()
+
+        val results: RealmResults<Post> = realm.where(
+            Post::class.java
+        ).findAll()
+
+
+        mAdapter = PostAdapter(this, results)
+        postRV.adapter = mAdapter
+        postRV.layoutManager = StaggeredGridLayoutManager(1, LinearLayoutManager.VERTICAL)
+
+        mAdapter.onItemClick = { realmVariables ->
+
+            val intent = Intent(applicationContext, SelectedActivity::class.java)
+            intent.putExtra("realmId", realmVariables.id)
+            intent.putExtra("realmText", realmVariables.text)
+            intent.putExtra("realmTemp", realmVariables.temp)
+            startActivity(intent)
+
+        }
     }
 
     private fun getWeatherAsync() {
