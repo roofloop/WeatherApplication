@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import io.realm.Realm
 import io.realm.kotlin.where
+import kotlin.math.roundToInt
 
 class AddPostActivity : AppCompatActivity() {
     private var isNew: Boolean = false
@@ -20,7 +21,7 @@ class AddPostActivity : AppCompatActivity() {
     private var existingPostText: String = ""
     private lateinit var temperatureTextView: TextView
     private lateinit var postEditText: EditText
-    private lateinit var tempText: String
+    private var tempText: Double = 0.0
     private lateinit var savePostButton: Button
     private lateinit var deletePostButton: Button
     private lateinit var updatePostButton: Button
@@ -36,7 +37,7 @@ class AddPostActivity : AppCompatActivity() {
         existingPostText = intent.getStringExtra("existingPostText").toString()
 
         realm = Realm.getDefaultInstance()
-        tempText = intent.getStringExtra("tempString").toString()
+        tempText = intent.getDoubleExtra("tempString", 0.0)
         temperatureTextView = findViewById(R.id.tempTextView)
         postEditText = findViewById(R.id.post_EditText)
         savePostButton = findViewById(R.id.uploadPost)
@@ -58,12 +59,18 @@ class AddPostActivity : AppCompatActivity() {
     }
 
     private fun deleteFromRealmWithId(id: Int) {
-        var matchingObject = realm.where<Post>().equalTo("id", id).findAll()
-        realm.beginTransaction()
-        matchingObject.deleteAllFromRealm()
-        realm.commitTransaction()
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
+        try {
+            val matchingObject = realm.where<Post>().equalTo("id", id).findAll()
+            realm.beginTransaction()
+            matchingObject.deleteAllFromRealm()
+            realm.commitTransaction()
+            Toast.makeText(this, "Post Deleted", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
+        } catch (e: Exception) {
+            // Retry ??
+            Toast.makeText(this, "Failed to delete post: $e", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun uploadPostToDB(choice: Int) {
@@ -97,14 +104,14 @@ class AddPostActivity : AppCompatActivity() {
                 println("!!! Post: ${post.id}, ${post.text}")
             }
             startActivity(Intent(this, MainActivity::class.java))
-            finish()
         } catch (e: Exception) {
+            // Retry??
             Toast.makeText(this, "Failed to upload post: $e", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupUI() {
-        val temp = tempText as String
+        val temp = tempText.roundToInt()
         val concatenatedTempText = "Stockholm $temp ℃"
         temperatureTextView.text = concatenatedTempText
         if (isNew) {
@@ -118,10 +125,4 @@ class AddPostActivity : AppCompatActivity() {
         }
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(true)
-        }
-        return super.onKeyDown(keyCode, event)
-    }
 }

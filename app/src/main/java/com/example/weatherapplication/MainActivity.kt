@@ -17,6 +17,7 @@ import io.realm.RealmResults
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -32,7 +33,8 @@ class MainActivity : AppCompatActivity(), OnPostClickListener {
     private val API_URL =
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
 
-    private var tempString: String? = null
+    //private var tempString: String? = null
+    private var temperatureRaw: Double = 0.0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,9 +56,8 @@ class MainActivity : AppCompatActivity(), OnPostClickListener {
 
         addPost.setOnClickListener {
             val intent = Intent(this@MainActivity, AddPostActivity::class.java)
-            intent.putExtra("tempString", tempString)
+            intent.putExtra("tempString", temperatureRaw)
             startActivity(intent)
-            finish()
         }
 
 
@@ -115,22 +116,22 @@ class MainActivity : AppCompatActivity(), OnPostClickListener {
                     prop, old, new ->
                 Log.d("DEBUG","OBSERVER: $old -> $new")
             }
-
-            tempString = weatherData.main.temp.toString()
-            name = tempString as String
-            temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
+            temperatureRaw = weatherData.main.temp
+            val tempRounded: Int = temperatureRaw.roundToInt()
+            //tempString = weatherData.main.temp.toString()
+            //name = tempString as String
+            temperatureTextView?.text = "Temp in Sthlm is: $tempRounded \u2103"
 
         }
     }
 
     override fun onItemClick(item: Post, position: Int) {
-        Toast.makeText(this, "Post Text: ${item.text}", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Post Text: ${item.text}", Toast.LENGTH_SHORT).show()
         val intent = Intent(this@MainActivity, AddPostActivity::class.java)
         intent.putExtra("isNew", true)
-        intent.putExtra("tempString", tempString)
+        intent.putExtra("tempString", temperatureRaw)
         intent.putExtra("intentPostId", item.id)
         intent.putExtra("existingPostText", item.text)
         startActivity(intent)
-        finish()
     }
 }
