@@ -2,25 +2,28 @@ package com.example.weatherapplication
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import io.realm.Realm
-import java.lang.Exception
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.*
+import io.realm.kotlin.where
 
 class AddPostActivity : AppCompatActivity() {
+    private var isNew: Boolean = false
+    private var existingPostId = 0
+    private var existingPostText: String = ""
     private lateinit var temperatureTextView: TextView
     private lateinit var postEditText: EditText
     private lateinit var tempText: String
     private lateinit var savePostButton: Button
+    private lateinit var deletePostButton: Button
+    private lateinit var updatePostButton: Button
     private lateinit var realm: Realm
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -28,22 +31,42 @@ class AddPostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_post)
 
+        isNew = intent.getBooleanExtra("isNew", false)
+        existingPostId = intent.getIntExtra("intentPostId", 0)
+        existingPostText = intent.getStringExtra("existingPostText").toString()
+
         realm = Realm.getDefaultInstance()
         tempText = intent.getStringExtra("tempString").toString()
         temperatureTextView = findViewById(R.id.tempTextView)
         postEditText = findViewById(R.id.post_EditText)
         savePostButton = findViewById(R.id.uploadPost)
+        deletePostButton = findViewById(R.id.delete_button)
+        updatePostButton = findViewById(R.id.save_button)
 
         setupUI()
 
         savePostButton.setOnClickListener {
-            uploadPostToDB()
+            uploadPostToDB(1)
+        }
+        deletePostButton.setOnClickListener {
+            deleteFromRealmWithId(existingPostId)
+        }
+        updatePostButton.setOnClickListener {
+            uploadPostToDB(3)
         }
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun uploadPostToDB() {
+    private fun deleteFromRealmWithId(id: Int) {
+        var matchingObject = realm.where<Post>().equalTo("id", id).findAll()
+        realm.beginTransaction()
+        matchingObject.deleteAllFromRealm()
+        realm.commitTransaction()
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+
+    private fun uploadPostToDB(choice: Int) {
         try {
             realm.beginTransaction()
             val currentIdNumber: Number? = realm.where(Post::class.java).max("id")
@@ -55,9 +78,14 @@ class AddPostActivity : AppCompatActivity() {
             }
 
             val post = Post()
-            val currentDate = LocalDate.now()
+            //val currentDate = LocalDate.now()
             //post.date = currentDate
-            post.id = nextID
+            if (choice == 1) {
+                post.id = nextID
+            } else if (choice == 3) {
+                post.id = existingPostId
+            }
+
             post.text = postEditText.text.toString()
 
             realm.copyToRealmOrUpdate(post)
@@ -79,5 +107,21 @@ class AddPostActivity : AppCompatActivity() {
         val temp = tempText as String
         val concatenatedTempText = "Stockholm $temp ℃"
         temperatureTextView.text = concatenatedTempText
+        if (isNew) {
+            savePostButton.isVisible = false
+            deletePostButton.text = "Delete"
+            updatePostButton.text = "Save"
+            postEditText.setText(existingPostText)
+        } else {
+            deletePostButton.isVisible = false
+            updatePostButton.isVisible = false
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(true)
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

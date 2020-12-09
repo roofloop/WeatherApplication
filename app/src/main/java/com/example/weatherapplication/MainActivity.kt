@@ -45,12 +45,13 @@ class MainActivity : AppCompatActivity(), OnPostClickListener {
         val textView: TextView = findViewById<TextView>(R.id.temperature)
         temperatureTextView = textView;
 
+        Log.d("!!!", "path: " + realm.path)
+
         getWeatherAsync()
         getAllPosts()
 
         postsRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Click listeners
         addPost.setOnClickListener {
             val intent = Intent(this@MainActivity, AddPostActivity::class.java)
             intent.putExtra("tempString", tempString)
@@ -124,5 +125,12 @@ class MainActivity : AppCompatActivity(), OnPostClickListener {
 
     override fun onItemClick(item: Post, position: Int) {
         Toast.makeText(this, "Post Text: ${item.text}", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this@MainActivity, AddPostActivity::class.java)
+        intent.putExtra("isNew", true)
+        intent.putExtra("tempString", tempString)
+        intent.putExtra("intentPostId", item.id)
+        intent.putExtra("existingPostText", item.text)
+        startActivity(intent)
+        finish()
     }
 }
