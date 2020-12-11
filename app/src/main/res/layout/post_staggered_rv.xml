@@ -14,21 +14,7 @@
         android:layout_height="match_parent">
 
 
-        <TextView
-            android:id="@+id/stag_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="37dp"
-            android:layout_marginEnd="23dp"
-            android:layout_marginBottom="1dp"
-            android:text="1"
-            android:textColor="@color/colorAccent"
-            android:textSize="28sp"
-            app:layout_constraintBottom_toTopOf="@+id/stag_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/stag_temp"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginRight="23dp" />
+
 
         <TextView
             android:id="@+id/stag_temp"
@@ -41,7 +27,6 @@
             android:textColor="@android:color/black"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/stag_text"
-            app:layout_constraintEnd_toStartOf="@+id/stag_id"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="18dp" />
@@ -57,7 +42,7 @@
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/stag_id" />
+             />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
