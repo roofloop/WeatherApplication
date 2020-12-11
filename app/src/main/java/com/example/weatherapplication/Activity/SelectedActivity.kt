@@ -3,56 +3,71 @@ package com.example.weatherapplication.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
-import com.example.weatherapplication.Interface.PostModel
-import com.example.weatherapplication.MainActivity
-import com.example.weatherapplication.Model.Post
+import com.example.weatherapplication.Interface.PostFirestoreModel
 import com.example.weatherapplication.R
-import io.realm.Realm
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_selected.*
-import java.lang.Exception
-private lateinit var helper:PostModel
-private lateinit var realm: Realm
 
 
 
 class SelectedActivity : AppCompatActivity() {
-    var realmId:Int? = 0
-    var realmText:String? = ""
-    var realmTemp:String? = ""
+    var id:String? = ""
+    var diaryInput:String? = ""
+    var temp:String? = ""
+    private lateinit var firestoreHelper:PostFirestoreModel
+    var TAG:String? = "SelectedActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_selected)
 
-        realm = Realm.getDefaultInstance()
+        id = intent.getStringExtra("id")
+        diaryInput = intent.getStringExtra("diaryInput")
+        temp = intent.getStringExtra("temp")
 
-        realmId = intent.getIntExtra("realmId",0)
-        realmText = intent.getStringExtra("realmText")
-        realmTemp = intent.getStringExtra("realmTemp")
-
-        textViewId.text = realmId.toString()
-        textViewEdit.text = realmText
-        textViewTemp.text = realmTemp
+        textViewEditText.setText(diaryInput.toString())
+        textViewTemp.text = temp
 
         val deleteButton = findViewById<Button>(R.id.deleteButton)
-        deleteButton.setOnClickListener { deletePost() }
+        deleteButton.setOnClickListener { deleteFromFirestore() }
+
+        val updateButton = findViewById<Button>(R.id.saveButton)
+        updateButton.setOnClickListener { updateFirestore() }
 
     }
 
-    private fun deletePost() {
-        try {
-            helper = PostModel()
-            //saving to Database
-            helper.deletePost(realm, realmId!!)
-            Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
+    private fun deleteFromFirestore(){
+        val db = Firebase.firestore
 
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        firestoreHelper = PostFirestoreModel()
+        firestoreHelper.deleteFromFirestore(id!!,db)
 
-        } catch (e: Exception){
-            Toast.makeText(this,"Failure", Toast.LENGTH_SHORT).show()
-        }
+        Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
+
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+
     }
+
+
+    private fun updateFirestore(){
+        val db = Firebase.firestore
+
+        firestoreHelper = PostFirestoreModel()
+
+        firestoreHelper.updateToFirestore(id!!,textViewEditText.text.toString(),db  )
+
+        Log.d(TAG, "textViewEditText: " + textViewEditText.text.toString())
+
+        Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
+
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+
+    }
+
 }
