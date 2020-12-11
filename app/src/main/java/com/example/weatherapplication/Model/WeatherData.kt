@@ -1,7 +1,6 @@
 package com.example.weatherapplication
 
 data class WeatherData(
-
     val main: Main
 )
 
