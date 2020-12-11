@@ -8,7 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.example.weatherapplication.MainActivity
+import com.example.weatherapplication.Activity.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.weatherapplication.R
 import com.google.firebase.FirebaseApp
@@ -24,9 +24,6 @@ class SignInActivity : AppCompatActivity() {
         val userPass = findViewById<EditText>(R.id.userPassword)
         val logInButton = findViewById<Button>(R.id.button_sign_in)
         val forgotPasswordButton = findViewById<TextView>(R.id.forgot_password_textview)
-
-
-
 
         // Initialize Firebase Auth and see if user already signed in
         FirebaseApp.initializeApp(this);
