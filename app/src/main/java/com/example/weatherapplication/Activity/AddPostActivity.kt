@@ -9,13 +9,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.example.weatherapplication.Interface.PostModel
-import com.example.weatherapplication.MainActivity
-import com.example.weatherapplication.Model.Post
+import com.example.weatherapplication.Interface.PostFirestoreModel
+import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.R
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import io.realm.Realm
 import java.lang.Exception
-import java.time.LocalDate
 
 class AddPostActivity : AppCompatActivity() {
     private lateinit var temperatureTextView: TextView
@@ -23,14 +23,13 @@ class AddPostActivity : AppCompatActivity() {
     private lateinit var tempText: String
     private lateinit var savePostButton: Button
     private lateinit var realm: Realm
-    private lateinit var helper:PostModel
+    private lateinit var firestoreHelper:PostFirestoreModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_post)
 
-        realm = Realm.getDefaultInstance()
         tempText = intent.getStringExtra("tempString").toString()
         temperatureTextView = findViewById(R.id.tempTextView)
 
@@ -40,32 +39,35 @@ class AddPostActivity : AppCompatActivity() {
         setupUI()
 
         savePostButton.setOnClickListener {
-            saveData()
+            saveDataToFirestore()
         }
     }
 
-    private fun saveData() {
 
-        try {
-            helper = PostModel()
-            val task = Post()
+    private fun saveDataToFirestore (){
+        try{
+
+            firestoreHelper = PostFirestoreModel()
+
+            val db = Firebase.firestore
+            val task = PostFirestore()
             task.temp = tempText
-            task.text = postEditText.text.toString()
+            task.diaryInput = postEditText.text.toString()
 
-            //saving to Database
-            helper.addPost(realm,task)
+            firestoreHelper.addToFirestore(task, db)
+
             Toast.makeText(this,"Success",Toast.LENGTH_SHORT).show()
-
-            startActivity(Intent(this,MainActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
 
-        } catch (e:Exception){
+        }catch (e:Exception){
             Toast.makeText(this,"Failure",Toast.LENGTH_SHORT).show()
         }
     }
 
+
     private fun setupUI() {
-        val temp = tempText as String
+        val temp = tempText
         val concatenatedTempText = "Stockholm $temp ℃"
         temperatureTextView.text = concatenatedTempText
     }
