@@ -3,6 +3,7 @@ package com.example.weatherapplication
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
