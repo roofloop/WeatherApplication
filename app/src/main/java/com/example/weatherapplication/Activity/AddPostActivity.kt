@@ -23,7 +23,7 @@ class AddPostActivity : AppCompatActivity() {
     private lateinit var tempText: String
     private lateinit var savePostButton: Button
     private lateinit var realm: Realm
-    private lateinit var firestoreHelper:PostFirestoreModel
+    private lateinit var firestoreHelper: PostFirestoreModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
