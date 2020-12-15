@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.example.weatherapplication.Activity.MainActivity
+import com.example.weatherapplication.Model.LoginUtility
 import com.google.firebase.auth.FirebaseAuth
 import com.example.weatherapplication.R
 import com.google.firebase.FirebaseApp
@@ -29,7 +30,7 @@ class SignInActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
-
+        auth.signOut()
 
         if (user != null) {
             // User is signed in
@@ -51,18 +52,11 @@ class SignInActivity : AppCompatActivity() {
         // OnclickListener for the button loginButton
         logInButton.setOnClickListener {
 
-            if (userEmail.text.toString() == "" || userPass.text.toString() == "") {
-
-                Toast.makeText(
-                    baseContext, "Please type something",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-
+            if(LoginUtility.validateLoginInput(userEmail.text.toString(), userPass.text.toString())) {
                 // Sign in with the typed in credentials
                 auth.signInWithEmailAndPassword(
-                    userEmail.text.toString(),
-                    userPass.text.toString()
+                        userEmail.text.toString(),
+                        userPass.text.toString()
                 )
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
@@ -82,14 +76,20 @@ class SignInActivity : AppCompatActivity() {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithEmail:failure", task.exception)
                             Toast.makeText(
-                                baseContext, "Authentication failed. Wrong credentials",
-                                Toast.LENGTH_SHORT
+                                    baseContext, "Authentication failed. Wrong credentials",
+                                    Toast.LENGTH_SHORT
                             ).show()
 
                         }
 
                     }
+            } else {
+                Toast.makeText(
+                        baseContext, "Please type something",
+                        Toast.LENGTH_SHORT
+                ).show()
             }
+
         }
     }
 }
