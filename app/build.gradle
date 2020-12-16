@@ -1,10 +1,14 @@
 
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlinx-serialization'
+
+
 
 android {
     compileSdkVersion 30
@@ -12,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.weatherapplication"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -48,20 +52,20 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'
 
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
 
-    // Declare the dependency for the Cloud Firestore library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-firestore-ktx:22.0.0'
-
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.google.firebase:firebase-firestore:22.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    // library
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
 }
 
