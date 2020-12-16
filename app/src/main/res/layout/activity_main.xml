@@ -6,6 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".Activity.MainActivity">
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeToRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/postRV"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="100dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/addPost"
+            app:layout_constraintTop_toBottomOf="@+id/temperature" />
+
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     <TextView
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
@@ -18,15 +40,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.054" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/postRV"
-        android:layout_width="match_parent"
-        android:layout_height="541dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="20dp"
-        android:layout_margin="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/addPost"
-        app:layout_constraintTop_toBottomOf="@+id/temperature" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addPost"
@@ -41,3 +54,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
