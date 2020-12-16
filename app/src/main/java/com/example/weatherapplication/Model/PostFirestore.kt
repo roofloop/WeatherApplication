@@ -1,6 +1,8 @@
 package com.example.weatherapplication.Model
 
-class PostFirestore {
+import java.io.Serializable
+
+class PostFirestore: Serializable {
 
     var id: String? = null
     var diaryInput: String? = null
@@ -14,8 +16,5 @@ class PostFirestore {
         this.temp = temp
     }
 
-    constructor(diaryInput: String, temp: String) {
-        this.diaryInput = diaryInput
-        this.temp = temp
-    }
+
 }
