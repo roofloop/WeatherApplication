@@ -2,11 +2,8 @@ package com.example.weatherapplication.Interface
 
 
 import android.util.Log
-import android.widget.Toast
 import com.example.weatherapplication.Model.PostFirestore
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import java.lang.Exception
 
 
@@ -19,7 +16,6 @@ class PostFirestoreModel : PostFirestoreInterface {
         try{
 
             val newDiaryInputRef = db.collection("DiaryInputs").document()
-
             postFirestore.id = newDiaryInputRef.id
 
             // Add a new document with a generated ID
