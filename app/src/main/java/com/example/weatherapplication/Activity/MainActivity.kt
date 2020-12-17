@@ -14,7 +14,6 @@ import com.example.weatherapplication.Model.Variables
 import com.example.weatherapplication.R
 import com.example.weatherapplication.WeatherData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.errorprone.annotations.Var
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
 
     private var tempString: String? = null
-    var TAG:String? = "MainActivity"
+    var TAG: String? = "MainActivity"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +46,8 @@ class MainActivity : AppCompatActivity() {
         addPost = findViewById(R.id.addPost)
         val textView: TextView = findViewById(R.id.temperature)
         temperatureTextView = textView;
+        checkIfNetwork()
+
 
         addPost.setOnClickListener {
             val isConnected: Boolean = Variables.isNetworkConnected
@@ -55,19 +56,20 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this@MainActivity, AddPostActivity::class.java)
                 intent.putExtra("tempString", tempString)
                 startActivity(intent)
-            }else{
+            } else {
                 Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
             }
         }
+    }
 
-        if (Variables.isNetworkConnected){
+    private fun checkIfNetwork() {
+        if (Variables.isNetworkConnected) {
             //Do something when network is connected
 
             getFirestoreToRV()
             getWeatherAsync()
 
-        }
-        else if(!Variables.isNetworkConnected) {
+        } else if (!Variables.isNetworkConnected) {
             //Do something when network is not connected
 
             addPost.setOnClickListener {
@@ -93,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getFirestoreToRV() {
 
-        try{
+        try {
             val settings = firestoreSettings {
                 isPersistenceEnabled = false
             }
@@ -102,14 +104,22 @@ class MainActivity : AppCompatActivity() {
             val db = Firebase.firestore
             db.firestoreSettings = settings
 
+
+            val notesList = mutableListOf<PostFirestore>()
+
             db.collection("DiaryInputs")
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val notesList = mutableListOf<PostFirestore>()
-                        for (doc in task.result!!) {
+                .addSnapshotListener { snapshot, e ->
+                    notesList.clear()
+
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && !snapshot.isEmpty) {
+                        for (doc in snapshot.documents!!) {
                             val note = doc.toObject(PostFirestore::class.java)
-                            notesList.add(note)
+                            notesList.add(note!!)
 
                             val out: ObjectOutput = ObjectOutputStream(
                                 FileOutputStream(
@@ -122,7 +132,6 @@ class MainActivity : AppCompatActivity() {
                             Log.d("TAG", "notesList in cache:  $notesList")
                             out.close()
                         }
-
                         mFirestoreAdapter = PostFirestoreAdapter(notesList)
                         postRV.adapter = mFirestoreAdapter
                         postRV.layoutManager = StaggeredGridLayoutManager(
@@ -142,8 +151,10 @@ class MainActivity : AppCompatActivity() {
                             startActivity(intent)
                         }
 
+
+                        Log.d(TAG, "Current data: ${snapshot.documents}")
                     } else {
-                        Log.d("TAG", "Error getting documents: ", task.exception)
+                        Log.d(TAG, "Current data: null")
                     }
                 }
         }catch (e: Exception){
@@ -197,5 +208,10 @@ class MainActivity : AppCompatActivity() {
             name = tempString as String
             temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 }
