@@ -11,8 +11,7 @@ class WeatherDataModel {
     private val client = OkHttpClient()
 
     fun fetchWeather(apiUrl: String, callback: (Double) -> Unit) {
-        var returnData: Double? = null
-        println("!!! $apiUrl")
+
         val request = Request.Builder()
                 .url(apiUrl)
                 .build()
@@ -37,15 +36,11 @@ class WeatherDataModel {
                         jsonObject.toString(),
                         WeatherData::class.java
                 )
-                returnData = weatherData.main.temp
+
                 callback(weatherData.main.temp)
-                println("!!! $returnData")
             }
         })
 
-
-        println("!!! before return: $returnData")
-        //return returnData
     }
 
 }

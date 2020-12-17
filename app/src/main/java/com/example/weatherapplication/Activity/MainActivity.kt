@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
 
     private var tempString: String? = null
+    private val apiCallBack: WeatherDataModel = WeatherDataModel()
     var TAG: String? = "MainActivity"
 
 
@@ -163,55 +164,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun getWeatherAsync() {
 
-        /*val request = Request.Builder()
-            .url(API_URL)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-
-                Log.d("ERROR", "Failed to execute request: " + e.printStackTrace())
-                e.printStackTrace();
-            }
-
-
-            override fun onResponse(call: Call, response: Response) {
-    val responseString = response.body()!!.string()
-
-                *//**
-                 * Parse JSON response to Gson library
-                 *//*
-
-                var jsonObject: JSONObject? = JSONObject(responseString)
-                val gson = Gson()
-                val weatherData: WeatherData = gson.fromJson(
-                    jsonObject.toString(),
-                    WeatherData::class.java
-                )
-
-                Thread(Runnable {
-                    runOnUiThread {
-                        updateUI(weatherData)
-                    }
-                }).start()
-            }
-        })*/
-        val responseTemp: Unit = WeatherDataModel().fetchWeather(API_URL) { temp ->
+        apiCallBack.fetchWeather(API_URL) { temp ->
             Thread(Runnable {
                 runOnUiThread {
                     updateUI(temp)
                 }
             }).start()
         }
-
-        /*
-        Thread(Runnable {
-            runOnUiThread {
-                updateUI(responseTemp)
-            }
-        }).start()
-
-         */
     }
 
     private fun updateUI(weatherData: Double?) {
