@@ -10,12 +10,13 @@ import java.io.IOException
 class WeatherDataModel {
     private val client = OkHttpClient()
 
-    fun fetchWeather(apiUrl: String): Double? {
+    fun fetchWeather(apiUrl: String, callback: (Double) -> Unit) {
         var returnData: Double? = null
-
+        println("!!! $apiUrl")
         val request = Request.Builder()
                 .url(apiUrl)
                 .build()
+
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -25,21 +26,26 @@ class WeatherDataModel {
             }
 
             override fun onResponse(call: Call, response: Response) {
-
                 val responseString = response.body()!!.string()
 
                 /**
                  * Parse JSON response to Gson library
                  */
-                val jsonObject: JSONObject? = JSONObject(responseString)
+                var jsonObject: JSONObject? = JSONObject(responseString)
                 val gson = Gson()
                 val weatherData: WeatherData = gson.fromJson(
                         jsonObject.toString(),
                         WeatherData::class.java
                 )
                 returnData = weatherData.main.temp
+                callback(weatherData.main.temp)
+                println("!!! $returnData")
             }
         })
-        return returnData
+
+
+        println("!!! before return: $returnData")
+        //return returnData
     }
+
 }

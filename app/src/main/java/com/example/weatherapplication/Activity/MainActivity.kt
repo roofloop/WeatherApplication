@@ -13,15 +13,12 @@ import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.Model.Variables
 import com.example.weatherapplication.Model.WeatherDataModel
 import com.example.weatherapplication.R
-import com.example.weatherapplication.WeatherData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.*
-import org.json.JSONObject
 import java.io.*
 import java.util.*
 import kotlin.math.roundToInt
@@ -199,13 +196,22 @@ class MainActivity : AppCompatActivity() {
                 }).start()
             }
         })*/
-        val responseTemp: Double? = WeatherDataModel().fetchWeather(API_URL)
+        val responseTemp: Unit = WeatherDataModel().fetchWeather(API_URL) { temp ->
+            Thread(Runnable {
+                runOnUiThread {
+                    updateUI(temp)
+                }
+            }).start()
+        }
 
+        /*
         Thread(Runnable {
             runOnUiThread {
                 updateUI(responseTemp)
             }
         }).start()
+
+         */
     }
 
     private fun updateUI(weatherData: Double?) {
