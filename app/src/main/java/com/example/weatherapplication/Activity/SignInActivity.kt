@@ -30,12 +30,12 @@ class SignInActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
-        auth.signOut()
+
+        //auth.signOut()
 
         if (user != null) {
             // User is signed in
             Log.d("user", "Signed in")
-
 
             val intent = Intent(this, MainActivity::class.java).apply {
             }
