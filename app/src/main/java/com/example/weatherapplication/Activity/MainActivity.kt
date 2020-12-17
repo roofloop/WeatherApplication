@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.weatherapplication.Adapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.Model.Variables
+import com.example.weatherapplication.Model.WeatherDataModel
 import com.example.weatherapplication.R
 import com.example.weatherapplication.WeatherData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -23,6 +24,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.*
 import java.util.*
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -164,7 +166,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getWeatherAsync() {
 
-        val request = Request.Builder()
+        /*val request = Request.Builder()
             .url(API_URL)
             .build()
 
@@ -175,13 +177,13 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace();
             }
 
+
             override fun onResponse(call: Call, response: Response) {
+    val responseString = response.body()!!.string()
 
-                val responseString = response.body()!!.string()
-
-                /**
+                *//**
                  * Parse JSON response to Gson library
-                 */
+                 *//*
 
                 var jsonObject: JSONObject? = JSONObject(responseString)
                 val gson = Gson()
@@ -196,10 +198,31 @@ class MainActivity : AppCompatActivity() {
                     }
                 }).start()
             }
-        })
+        })*/
+        val responseTemp: Double? = WeatherDataModel().fetchWeather(API_URL)
+
+        Thread(Runnable {
+            runOnUiThread {
+                updateUI(responseTemp)
+            }
+        }).start()
     }
 
+    private fun updateUI(weatherData: Double?) {
+
+        if (weatherData != null) {
+            var name: String by Delegates.observable("<>") { prop, old, new ->
+                Log.d("DEBUG", "OBSERVER: $old -> $new")
+            }
+            tempString = weatherData.roundToInt().toString()
+            name = tempString as String
+            temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
+        }
+    }
+
+/*
     private fun updateUI(weatherData: WeatherData?) {
+
         if (weatherData != null) {
             var name: String by Delegates.observable("<>") { prop, old, new ->
                 Log.d("DEBUG", "OBSERVER: $old -> $new")
@@ -209,6 +232,7 @@ class MainActivity : AppCompatActivity() {
             temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
         }
     }
+*/
 
     override fun onBackPressed() {
         super.onBackPressed()
