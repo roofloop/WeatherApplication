@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.example.weatherapplication.Activity.MainActivity
+import com.example.weatherapplication.Model.LoginUtility
 import com.google.firebase.auth.FirebaseAuth
 import com.example.weatherapplication.R
 import com.google.firebase.FirebaseApp
@@ -29,11 +30,12 @@ class SignInActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
-
+        auth.signOut()
 
         if (user != null) {
             // User is signed in
             Log.d("user", "Signed in")
+
 
             val intent = Intent(this, MainActivity::class.java).apply {
             }
@@ -50,44 +52,44 @@ class SignInActivity : AppCompatActivity() {
         // OnclickListener for the button loginButton
         logInButton.setOnClickListener {
 
-            if (userEmail.text.toString() == "" || userPass.text.toString() == "") {
-
-                Toast.makeText(
-                        baseContext, "Please type something",
-                        Toast.LENGTH_SHORT
-                ).show()
-            } else {
-
+            if(LoginUtility.validateLoginInput(userEmail.text.toString(), userPass.text.toString())) {
                 // Sign in with the typed in credentials
                 auth.signInWithEmailAndPassword(
                         userEmail.text.toString(),
                         userPass.text.toString()
                 )
-                        .addOnCompleteListener(this) { task ->
-                            if (task.isSuccessful) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d("TAG", "signInWithEmail:success")
-                                val user = auth.currentUser
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("TAG", "signInWithEmail:success")
+                            val user = auth.currentUser
 
-                                // Do something in response to button
-                                val intent = Intent(this, MainActivity::class.java).apply {
-                                }
-
-                                startActivity(intent)
-                                finish()
-
-
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w("TAG", "signInWithEmail:failure", task.exception)
-                                Toast.makeText(
-                                        baseContext, "Authentication failed. Wrong credentials",
-                                        Toast.LENGTH_SHORT
-                                ).show()
-
+                            // Do something in response to button
+                            val intent = Intent(this, MainActivity::class.java).apply {
                             }
+
+                            startActivity(intent)
+                            finish()
+
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("TAG", "signInWithEmail:failure", task.exception)
+                            Toast.makeText(
+                                    baseContext, "Authentication failed. Wrong credentials",
+                                    Toast.LENGTH_SHORT
+                            ).show()
+
                         }
+
+                    }
+            } else {
+                Toast.makeText(
+                        baseContext, "Please type something",
+                        Toast.LENGTH_SHORT
+                ).show()
             }
+
         }
     }
 }

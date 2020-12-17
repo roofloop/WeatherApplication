@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.weatherapplication.Interface.PostFirestoreModel
+import com.example.weatherapplication.Model.DiaryUtility
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.R
 import com.google.firebase.firestore.ktx.firestore
@@ -23,7 +24,7 @@ class AddPostActivity : AppCompatActivity() {
     private lateinit var tempText: String
     private lateinit var savePostButton: Button
     private lateinit var realm: Realm
-    private lateinit var firestoreHelper:PostFirestoreModel
+    private lateinit var firestoreHelper: PostFirestoreModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,23 +46,27 @@ class AddPostActivity : AppCompatActivity() {
 
 
     private fun saveDataToFirestore (){
-        try{
+        if(DiaryUtility.validateDiaryInput(postEditText.text.toString())) {
+            try {
 
-            firestoreHelper = PostFirestoreModel()
+                firestoreHelper = PostFirestoreModel()
 
-            val db = Firebase.firestore
-            val task = PostFirestore()
-            task.temp = tempText
-            task.diaryInput = postEditText.text.toString()
+                val db = Firebase.firestore
+                val task = PostFirestore()
 
-            firestoreHelper.addToFirestore(task, db)
+                task.temp = tempText
+                task.diaryInput = postEditText.text.toString()
 
-            Toast.makeText(this,"Success",Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+                firestoreHelper.addToFirestore(task, db)
 
-        }catch (e:Exception){
-            Toast.makeText(this,"Failure",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Failure", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "You can't post en empty post!", Toast.LENGTH_SHORT).show()
         }
     }
 
