@@ -76,4 +76,9 @@ class AddPostActivity : AppCompatActivity() {
         val concatenatedTempText = "Stockholm $temp ℃"
         temperatureTextView.text = concatenatedTempText
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
 }
