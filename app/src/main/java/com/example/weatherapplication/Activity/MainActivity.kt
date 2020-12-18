@@ -185,20 +185,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-/*
-    private fun updateUI(weatherData: WeatherData?) {
-
-        if (weatherData != null) {
-            var name: String by Delegates.observable("<>") { prop, old, new ->
-                Log.d("DEBUG", "OBSERVER: $old -> $new")
-            }
-            tempString = weatherData.main.temp.toString()
-            name = tempString as String
-            temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
-        }
-    }
-*/
-
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
