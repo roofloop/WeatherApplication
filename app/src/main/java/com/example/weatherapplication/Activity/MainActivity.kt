@@ -11,18 +11,17 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.weatherapplication.Adapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.Model.Variables
+import com.example.weatherapplication.Model.WeatherDataModel
 import com.example.weatherapplication.R
-import com.example.weatherapplication.WeatherData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.*
-import org.json.JSONObject
 import java.io.*
 import java.util.*
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -36,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
 
     private var tempString: String? = null
+    private val apiCallBack: WeatherDataModel = WeatherDataModel()
     var TAG: String? = "MainActivity"
 
 
@@ -164,47 +164,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun getWeatherAsync() {
 
-        val request = Request.Builder()
-            .url(API_URL)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-
-                Log.d("ERROR", "Failed to execute request: " + e.printStackTrace())
-                e.printStackTrace();
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-
-                val responseString = response.body()!!.string()
-
-                /**
-                 * Parse JSON response to Gson library
-                 */
-
-                var jsonObject: JSONObject? = JSONObject(responseString)
-                val gson = Gson()
-                val weatherData: WeatherData = gson.fromJson(
-                    jsonObject.toString(),
-                    WeatherData::class.java
-                )
-
-                Thread(Runnable {
-                    runOnUiThread {
-                        updateUI(weatherData)
-                    }
-                }).start()
-            }
-        })
+        apiCallBack.fetchWeather(API_URL) { temp ->
+            Thread(Runnable {
+                runOnUiThread {
+                    updateUI(temp)
+                }
+            }).start()
+        }
     }
 
-    private fun updateUI(weatherData: WeatherData?) {
+    private fun updateUI(weatherData: Double?) {
+
         if (weatherData != null) {
             var name: String by Delegates.observable("<>") { prop, old, new ->
                 Log.d("DEBUG", "OBSERVER: $old -> $new")
             }
-            tempString = weatherData.main.temp.toString()
+            tempString = weatherData.roundToInt().toString()
             name = tempString as String
             temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
         }
