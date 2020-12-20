@@ -3,31 +3,43 @@ package com.example.weatherapplication.Model
 object EncryptionBin {
 
     fun encrypt(postToEncrypt: String, key: String): String {
-        var encryptedPost: StringBuilder = StringBuilder()
+        println("Original Post: $postToEncrypt")
+        val encryptedPost: StringBuilder = StringBuilder()
         var counter = 0
 
         for (ch in postToEncrypt) {
             if (counter >= key.length) {
                 counter = 0
             }
+
             val convertPostChToAscii = ch.toInt()
-            println("convertPostChToAscii: $convertPostChToAscii")
             val convertKeyChToAscii = key[counter].toInt()
             val convertPostChToBinary = convertToBinary(convertPostChToAscii, 8)
             val convertKeyChToBinary = convertToBinary(convertKeyChToAscii, 8)
-            println("convertPostChToBinary: $convertPostChToBinary")
-            println("convertKeyChToBinary: $convertKeyChToBinary")
+
             encryptedPost.append(exclusiveOr(convertPostChToBinary, convertKeyChToBinary))
 
             counter += 1
 
         }
-        println(encryptedPost)
+        println("Encrypted Post: $encryptedPost")
         return encryptedPost.toString()
     }
 
-    fun decrypt(postToDecrypt: String, key: String) {
-
+    fun decrypt(postToDecrypt: String, key: String): String {
+        if (isBinary(postToDecrypt)) {
+            return "File Error: This file is corrupt or incomplete"
+        }
+        val decryptedPost: StringBuilder = StringBuilder()
+        var i = 0
+        val chars = CharArray(postToDecrypt.length / 8)
+        while (i < postToDecrypt.length) {
+            val subStr = exclusiveOr(postToDecrypt.substring(i, i + 8), key)
+            val nb = Integer.parseInt(subStr, 2)
+            chars[i / 8] = nb.toChar()
+            i += 8
+        }
+        return String(chars)
     }
 
     private fun exclusiveOr(bit: String, key: String): String {
@@ -45,7 +57,7 @@ object EncryptionBin {
         return builder.toString()
     }
 
-    fun convertToBinary(ascii: Int, length: Int): String {
+    private fun convertToBinary(ascii: Int, length: Int): String {
         return String.format(
                 "%" + length + "s",
                 Integer.toBinaryString(ascii)
