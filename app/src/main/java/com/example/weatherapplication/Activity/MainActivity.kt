@@ -1,4 +1,4 @@
-package com.example.weatherapplication.Activity
+ package com.example.weatherapplication.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var temperatureTextView: TextView? = null
     private val client = OkHttpClient()
     private val API_URL =
-        "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8df6e9cbc37e2471dea928884f364bf3"
+        "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8cd3c8555e090df0d6917f60f2cc91a6"
 
     private var tempString: String? = null
     var TAG: String? = "MainActivity"
