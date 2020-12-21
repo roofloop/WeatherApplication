@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.example.weatherapplication.Activity.MainActivity
 import com.example.weatherapplication.Model.LoginUtility
 import com.google.firebase.auth.FirebaseAuth
 import com.example.weatherapplication.R

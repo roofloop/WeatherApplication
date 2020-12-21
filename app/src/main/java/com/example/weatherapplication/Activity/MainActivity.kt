@@ -8,21 +8,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.weatherapplication.Adapter.PostFirestoreAdapter
+import com.example.weatherapplication.RecyclerViewAdapter.PostFirestoreAdapter
+import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
-import com.example.weatherapplication.Model.Variables
+import com.example.weatherapplication.Model.WeatherDataModel
+import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
-import com.example.weatherapplication.WeatherData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.*
-import org.json.JSONObject
 import java.io.*
-import java.util.*
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -31,13 +29,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addPost: FloatingActionButton
     private lateinit var mFirestoreAdapter: PostFirestoreAdapter
     private var temperatureTextView: TextView? = null
-    private val client = OkHttpClient()
+    private var modeTextview: TextView? = null
     private val API_URL =
         "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8cd3c8555e090df0d6917f60f2cc91a6"
 
     private var tempString: String? = null
-    var TAG: String? = "MainActivity"
+    private val apiCallBack: WeatherDataModel = WeatherDataModel()
+    private val cacheHelper: CacheModel = CacheModel()
 
+    var TAG: String? = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,116 +45,86 @@ class MainActivity : AppCompatActivity() {
 
         addPost = findViewById(R.id.addPost)
         val textView: TextView = findViewById(R.id.temperature)
-        temperatureTextView = textView;
-        checkIfNetwork()
+        val textViewOfflineMode: TextView = findViewById(R.id.offlineMode)
+        temperatureTextView = textView
+        modeTextview = textViewOfflineMode
+        handleNetworkChanges()
 
-
-        addPost.setOnClickListener {
-            val isConnected: Boolean = Variables.isNetworkConnected
-
-            if (isConnected) {
-                val intent = Intent(this@MainActivity, AddPostActivity::class.java)
-                intent.putExtra("tempString", tempString)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
-    private fun checkIfNetwork() {
-        if (Variables.isNetworkConnected) {
-            //Do something when network is connected
 
-            getFirestoreToRV()
-            getWeatherAsync()
+    private fun handleNetworkChanges()
 
-        } else if (!Variables.isNetworkConnected) {
-            //Do something when network is not connected
+    {
 
-            addPost.setOnClickListener {
-                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
+            if (!isConncted)
+            {
+                modeTextview?.text = "Offline Mode"
+
+                addPost.setOnClickListener {
+
+                    Toast.makeText(this, "Network Fail", Toast.LENGTH_SHORT).show()
+
+                }
+                try {
+
+                    populateTheRecyclerView(cacheHelper.readCachedFile(this), false)
+
+                    val notesList = cacheHelper.readCachedFile(this)
+
+                    for (item in notesList)
+                        Log.d(TAG, "Items in noteslist from cache: ${item.creationDate}")
+
+                }catch (e: FileNotFoundException){
+                    Log.d(TAG, "Cache file not found", e)
+                }
             }
+            else
+            {
 
-            val `in` = ObjectInputStream(
-                FileInputStream(
-                    File(
-                        File(
-                            cacheDir,
-                            ""
-                        ).toString() + "cacheFile.tmp"
-                    )
-                )
-            )
-            val mutableListObject = `in`.readObject()
-            Log.d("TAG", "CACHE$mutableListObject")
-            `in`.close()
-        }
+                modeTextview?.text = "Online Mode"
+
+                getFirestoreToRV()
+                getWeatherAsync()
+
+                addPost.setOnClickListener {
+                        val intent = Intent(this, AddPostActivity::class.java)
+                        intent.putExtra("tempString", tempString)
+                        startActivity(intent)
+                }
+            }
+        })
     }
-
 
     private fun getFirestoreToRV() {
-
         try {
             val settings = firestoreSettings {
                 isPersistenceEnabled = false
             }
-
             // Access a Cloud Firestore instance
             val db = Firebase.firestore
             db.firestoreSettings = settings
-
-
             val notesList = mutableListOf<PostFirestore>()
 
-            db.collection("DiaryInputs")
+            db.collection("InputsDiary")
                 .addSnapshotListener { snapshot, e ->
                     notesList.clear()
 
-                    if (e != null) {
-                        Log.w(TAG, "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-
                     if (snapshot != null && !snapshot.isEmpty) {
-                        for (doc in snapshot.documents!!) {
+                        for (doc in snapshot.documents) {
                             val note = doc.toObject(PostFirestore::class.java)
                             notesList.add(note!!)
-
-                            val out: ObjectOutput = ObjectOutputStream(
-                                FileOutputStream(
-                                    File(
-                                        cacheDir, ""
-                                    ).toString() + "cacheFile.tmp"
-                                )
-                            )
-                            out.writeObject(notesList)
-                            Log.d("TAG", "notesList in cache:  $notesList")
-                            out.close()
-                        }
-                        mFirestoreAdapter = PostFirestoreAdapter(notesList)
-                        postRV.adapter = mFirestoreAdapter
-                        postRV.layoutManager = StaggeredGridLayoutManager(
-                            1,
-                            LinearLayoutManager.VERTICAL
-                        )
-
-                        mFirestoreAdapter.onItemClick = { firestoreVariables ->
-
-                            val intent = Intent(
-                                applicationContext,
-                                SelectedActivity::class.java
-                            )
-                            intent.putExtra("id", firestoreVariables.id)
-                            intent.putExtra("diaryInput", firestoreVariables.diaryInput)
-                            intent.putExtra("temp", firestoreVariables.temp)
-                            startActivity(intent)
+                            cacheHelper.createCachedFile(this, notesList)
                         }
 
+                        populateTheRecyclerView(notesList,true)
 
-                        Log.d(TAG, "Current data: ${snapshot.documents}")
+
                     } else {
-                        Log.d(TAG, "Current data: null")
+                        //Refreshing the RV and cache if firestore is empty.
+                        cacheHelper.deleteCachedFile(this)
+                        populateTheRecyclerView(notesList, true)
                     }
                 }
         }catch (e: Exception){
@@ -162,52 +132,55 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getWeatherAsync() {
 
-        val request = Request.Builder()
-            .url(API_URL)
-            .build()
+    private fun populateTheRecyclerView(notesList: MutableList<PostFirestore>, isConnected: Boolean) {
+        mFirestoreAdapter = PostFirestoreAdapter(notesList)
+        postRV.adapter = mFirestoreAdapter
+        postRV.layoutManager = StaggeredGridLayoutManager(
+            1,
+            LinearLayoutManager.VERTICAL
+        )
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
+        if (isConnected){
+            mFirestoreAdapter.onItemClick = { firestoreVariables ->
 
-                Log.d("ERROR", "Failed to execute request: " + e.printStackTrace())
-                e.printStackTrace();
+                val intent = Intent(applicationContext, SelectedActivity::class.java)
+                intent.putExtra("id", firestoreVariables.id)
+                intent.putExtra("diaryInput", firestoreVariables.diaryInput)
+                intent.putExtra("temp", firestoreVariables.temp)
+                startActivity(intent)
             }
-
-            override fun onResponse(call: Call, response: Response) {
-
-                val responseString = response.body()!!.string()
-
-                /**
-                 * Parse JSON response to Gson library
-                 */
-
-                var jsonObject: JSONObject? = JSONObject(responseString)
-                val gson = Gson()
-                val weatherData: WeatherData = gson.fromJson(
-                    jsonObject.toString(),
-                    WeatherData::class.java
-                )
-
-                Thread(Runnable {
-                    runOnUiThread {
-                        updateUI(weatherData)
-                    }
-                }).start()
-            }
-        })
+        }
     }
 
-    private fun updateUI(weatherData: WeatherData?) {
+
+    private fun getWeatherAsync() {
+
+        apiCallBack.fetchWeather(API_URL) { temp ->
+            Thread(Runnable {
+                runOnUiThread {
+                    updateUI(temp)
+                }
+            }).start()
+        }
+    }
+
+    private fun updateUI(weatherData: Double?) {
+
         if (weatherData != null) {
             var name: String by Delegates.observable("<>") { prop, old, new ->
                 Log.d("DEBUG", "OBSERVER: $old -> $new")
             }
-            tempString = weatherData.main.temp.toString()
+            tempString = weatherData.roundToInt().toString()
             name = tempString as String
             temperatureTextView?.text = "Temp in Sthlm is: $name \u2103"
         }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        // put your code here...
     }
 
     override fun onBackPressed() {

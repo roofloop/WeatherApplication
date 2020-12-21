@@ -15,7 +15,7 @@ class PostFirestoreModel : PostFirestoreInterface {
 
         try{
 
-            val newDiaryInputRef = db.collection("DiaryInputs").document()
+            val newDiaryInputRef = db.collection("InputsDiary").document()
             postFirestore.id = newDiaryInputRef.id
 
             // Add a new document with a generated ID
@@ -36,7 +36,7 @@ class PostFirestoreModel : PostFirestoreInterface {
     }
     override fun deleteFromFirestore(id: String, db: FirebaseFirestore) {
 
-        db.collection("DiaryInputs").document(id)
+        db.collection("InputsDiary").document(id)
             .delete()
             .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }
             .addOnFailureListener { e ->
@@ -45,11 +45,12 @@ class PostFirestoreModel : PostFirestoreInterface {
     }
 
     override fun updateToFirestore(id: String, diaryInput: String, db: FirebaseFirestore) {
-        val updateDiaryInputRef = db.collection("DiaryInputs").document(id)
+        val updateDiaryInputRef = db.collection("InputsDiary").document(id)
 
         updateDiaryInputRef
             .update("diaryInput", diaryInput)
             .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully updated!") }
             .addOnFailureListener { e -> Log.w(TAG, "Error updating document", e) }
+
     }
 }
