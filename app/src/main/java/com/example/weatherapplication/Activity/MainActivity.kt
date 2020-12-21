@@ -1,16 +1,14 @@
 package com.example.weatherapplication.Activity
 
 import android.content.Intent
-import androidx.lifecycle.Observer
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.weatherapplication.Adapter.PostFirestoreAdapter
+import com.example.weatherapplication.RecyclerViewAdapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.Model.WeatherDataModel
@@ -21,9 +19,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.*
 import java.io.*
-import java.util.*
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
@@ -58,6 +54,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun handleNetworkChanges()
+
     {
 
         NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
@@ -73,6 +70,7 @@ class MainActivity : AppCompatActivity() {
                 try {
 
                     populateTheRecyclerView(cacheHelper.readCachedFile(this), false)
+
                     val notesList = cacheHelper.readCachedFile(this)
 
                     for (item in notesList)
