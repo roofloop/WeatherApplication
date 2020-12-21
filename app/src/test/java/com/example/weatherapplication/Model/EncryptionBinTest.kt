@@ -13,7 +13,7 @@ class EncryptionBinTest {
 
     @Test
     fun `encryption and decryption test`() {
-        val post = "Haj! Nu testar vi med Å ä ö."
+        val post = "Haj! Ett lite längre, med å ä ö8"
         val key = "foickmeadasdf"
         val encryptedText = EncryptionBin.encrypt(post, key)
         val decryptedText = EncryptionBin.decrypt(encryptedText, key)
