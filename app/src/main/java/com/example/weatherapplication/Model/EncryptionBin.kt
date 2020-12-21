@@ -43,6 +43,8 @@ object EncryptionBin {
             i += 8
             j += 1
         }
+        val print = String(chars)
+        println("Decrypted: $print")
         return String(chars)
     }
 
