@@ -18,26 +18,42 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.054" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/postRV"
         android:layout_width="match_parent"
         android:layout_height="541dp"
+        android:layout_margin="10dp"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="20dp"
-        android:layout_margin="10dp"
         app:layout_constraintBottom_toTopOf="@+id/addPost"
-        app:layout_constraintTop_toBottomOf="@+id/temperature" />
+        app:layout_constraintTop_toBottomOf="@+id/temperature"
+        tools:layout_editor_absoluteX="10dp" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="34dp"
+        android:clickable="true"
+        android:contextClickable="true"
         android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/offlineMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="Offline Mode"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postRV" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
