@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.weatherapplication.Interface.PostFirestoreModel
 import com.example.weatherapplication.RecyclerViewAdapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
@@ -98,6 +99,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getFirestoreToRV() {
+        val firestoreModel = PostFirestoreModel()
+        firestoreModel.getFromFirestore(this) { list ->
+            populateTheRecyclerView(list, true)
+        }
+    }
+
+    private fun getFirestoreToRVOld() {
         try {
             val settings = firestoreSettings {
                 isPersistenceEnabled = false
