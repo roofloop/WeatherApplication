@@ -89,7 +89,7 @@ class AddPostActivity : AppCompatActivity() {
                 task.diaryInput = postEditText.text.toString()
                 task.creationDate = currentDate
 
-                firestoreHelper.addToFirestore(task, db)
+                firestoreHelper.addToFirestore(task)
 
                 Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
                 //startActivity(Intent(this, MainActivity::class.java))

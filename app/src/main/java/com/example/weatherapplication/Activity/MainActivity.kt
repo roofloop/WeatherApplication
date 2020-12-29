@@ -105,42 +105,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getFirestoreToRVOld() {
-        try {
-            val settings = firestoreSettings {
-                isPersistenceEnabled = false
-            }
-            // Access a Cloud Firestore instance
-            val db = Firebase.firestore
-            db.firestoreSettings = settings
-            val notesList = mutableListOf<PostFirestore>()
-
-            db.collection("InputsDiary")
-                .addSnapshotListener { snapshot, e ->
-                    notesList.clear()
-
-                    if (snapshot != null && !snapshot.isEmpty) {
-                        for (doc in snapshot.documents) {
-                            val note = doc.toObject(PostFirestore::class.java)
-                            notesList.add(note!!)
-                            cacheHelper.createCachedFile(this, notesList)
-                        }
-
-                        populateTheRecyclerView(notesList,true)
-
-
-                    } else {
-                        //Refreshing the RV and cache if firestore is empty.
-                        cacheHelper.deleteCachedFile(this)
-                        populateTheRecyclerView(notesList, true)
-                    }
-                }
-        }catch (e: Exception){
-            Log.d(TAG, "Failure", e)
-        }
-    }
-
-
     private fun populateTheRecyclerView(notesList: MutableList<PostFirestore>, isConnected: Boolean) {
         mFirestoreAdapter = PostFirestoreAdapter(notesList)
         postRV.adapter = mFirestoreAdapter
@@ -160,7 +124,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun getWeatherAsync() {
 

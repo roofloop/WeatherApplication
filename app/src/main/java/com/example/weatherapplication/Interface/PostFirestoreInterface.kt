@@ -8,8 +8,8 @@ import javax.security.auth.callback.Callback
 interface PostFirestoreInterface {
 
     fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit)
-    fun addToFirestore(postFirestore: PostFirestore, db: FirebaseFirestore)
-    fun deleteFromFirestore(id: String, db: FirebaseFirestore)
-    fun updateToFirestore(id: String, diaryInput: String, db: FirebaseFirestore)
+    fun addToFirestore(postFirestore: PostFirestore)
+    fun deleteFromFirestore(id: String)
+    fun updateToFirestore(id: String, diaryInput: String)
 
 }
