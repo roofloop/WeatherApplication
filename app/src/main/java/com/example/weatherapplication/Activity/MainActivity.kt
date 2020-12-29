@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.weatherapplication.Interface.PostFirestoreModel
 import com.example.weatherapplication.RecyclerViewAdapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
@@ -98,40 +99,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getFirestoreToRV() {
-        try {
-            val settings = firestoreSettings {
-                isPersistenceEnabled = false
-            }
-            // Access a Cloud Firestore instance
-            val db = Firebase.firestore
-            db.firestoreSettings = settings
-            val notesList = mutableListOf<PostFirestore>()
-
-            db.collection("InputsDiary")
-                .addSnapshotListener { snapshot, e ->
-                    notesList.clear()
-
-                    if (snapshot != null && !snapshot.isEmpty) {
-                        for (doc in snapshot.documents) {
-                            val note = doc.toObject(PostFirestore::class.java)
-                            notesList.add(note!!)
-                            cacheHelper.createCachedFile(this, notesList)
-                        }
-
-                        populateTheRecyclerView(notesList,true)
-
-
-                    } else {
-                        //Refreshing the RV and cache if firestore is empty.
-                        cacheHelper.deleteCachedFile(this)
-                        populateTheRecyclerView(notesList, true)
-                    }
-                }
-        }catch (e: Exception){
-            Log.d(TAG, "Failure", e)
+        val firestoreModel = PostFirestoreModel()
+        firestoreModel.getFromFirestore(this) { list ->
+            populateTheRecyclerView(list, true)
         }
     }
-
 
     private fun populateTheRecyclerView(notesList: MutableList<PostFirestore>, isConnected: Boolean) {
         mFirestoreAdapter = PostFirestoreAdapter(notesList)
@@ -152,7 +124,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun getWeatherAsync() {
 
