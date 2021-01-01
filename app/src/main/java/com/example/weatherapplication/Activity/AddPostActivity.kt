@@ -1,9 +1,5 @@
 package com.example.weatherapplication.Activity
 
-import android.content.Context
-import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,8 +15,6 @@ import com.example.weatherapplication.Model.DiaryUtility
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import io.realm.Realm
 import java.io.FileNotFoundException
 import java.lang.Exception
@@ -47,43 +41,66 @@ class AddPostActivity : AppCompatActivity() {
 
         postEditText = findViewById(R.id.post_EditText)
         savePostButton = findViewById(R.id.uploadPost)
-        handleNetworkChanges()
 
         setupUI()
+        handleNetworkChanges()
+
+
 
     }
 
 
     private fun handleNetworkChanges()
+
     {
 
-        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
-            if (!isConncted)
+        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConnected ->
+            if (!isConnected)
             {
                 savePostButton.setOnClickListener {
-                    Toast.makeText(this, "Network is missing", Toast.LENGTH_SHORT).show()
+                    saveDataToCache()
+
                 }
-            }else{
+
+            }
+            else
+            {
+
                 savePostButton.setOnClickListener {
                     saveDataToFirestore()
 
                 }
+
             }
         })
     }
 
+    private fun saveDataToCache(){
+        //In case the application is working in offline mode, we should save new posts to cache instead of to firestore.
+        firestoreHelper = PostFirestoreModel()
+
+        val task = PostFirestore()
+        val currentDate = getCurrentDate()
+        val diaryInputsList = cacheHelper.readCachedFile(this)
+
+        task.temp = tempText
+        task.diaryInput = postEditText.text.toString()
+        task.creationDate = currentDate
+
+        diaryInputsList.add(task)
+        firestoreHelper.addToFirestore(task)
+        cacheHelper.createCachedFile(this, diaryInputsList)
+        finish()
+
+    }
 
     private fun saveDataToFirestore (){
         if(DiaryUtility.validateDiaryInput(postEditText.text.toString())) {
             try {
 
                 firestoreHelper = PostFirestoreModel()
-
-                val db = Firebase.firestore
                 val task = PostFirestore()
-
-                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                val currentDate = sdf.format(Date())
+                val currentDate = getCurrentDate()
 
                 task.temp = tempText
                 task.diaryInput = postEditText.text.toString()
@@ -100,6 +117,11 @@ class AddPostActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "You can't post en empty post!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun getCurrentDate() : String{
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        return sdf.format(Date())
     }
 
     private fun setupUI() {
