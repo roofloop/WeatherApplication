@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -16,9 +15,6 @@ import com.example.weatherapplication.Model.WeatherDataModel
 import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.firestoreSettings
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
 import kotlin.math.roundToInt
@@ -51,6 +47,12 @@ class MainActivity : AppCompatActivity() {
         modeTextview = textViewOfflineMode
         handleNetworkChanges()
 
+        addPost.setOnClickListener {
+            val intent = Intent(this, AddPostActivity::class.java)
+            intent.putExtra("tempString", tempString)
+            startActivity(intent)
+        }
+
     }
 
 
@@ -58,24 +60,19 @@ class MainActivity : AppCompatActivity() {
 
     {
 
-        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
-            if (!isConncted)
+        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConnected ->
+            if (!isConnected)
             {
                 modeTextview?.text = "Offline Mode"
 
-                addPost.setOnClickListener {
-
-                    Toast.makeText(this, "Network Fail", Toast.LENGTH_SHORT).show()
-
-                }
                 try {
 
                     populateTheRecyclerView(cacheHelper.readCachedFile(this), false)
 
-                    val notesList = cacheHelper.readCachedFile(this)
+                    val diaryInputsList = cacheHelper.readCachedFile(this)
 
-                    for (item in notesList)
-                        Log.d(TAG, "Items in noteslist from cache: ${item.creationDate}")
+                    for (item in diaryInputsList)
+                        Log.d(TAG, "Items in diaryInputsList from cache: ${item.diaryInput}")
 
                 }catch (e: FileNotFoundException){
                     Log.d(TAG, "Cache file not found", e)
@@ -88,12 +85,6 @@ class MainActivity : AppCompatActivity() {
 
                 getFirestoreToRV()
                 getWeatherAsync()
-
-                addPost.setOnClickListener {
-                        val intent = Intent(this, AddPostActivity::class.java)
-                        intent.putExtra("tempString", tempString)
-                        startActivity(intent)
-                }
             }
         })
     }
@@ -105,8 +96,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun populateTheRecyclerView(notesList: MutableList<PostFirestore>, isConnected: Boolean) {
-        mFirestoreAdapter = PostFirestoreAdapter(notesList)
+    private fun populateTheRecyclerView(diaryInputsList: MutableList<PostFirestore>, isConnected: Boolean) {
+        mFirestoreAdapter = PostFirestoreAdapter(diaryInputsList)
         postRV.adapter = mFirestoreAdapter
         postRV.layoutManager = StaggeredGridLayoutManager(
             1,
@@ -151,7 +142,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // put your code here...
+        // put your code here...'
+        handleNetworkChanges()
     }
 
     override fun onBackPressed() {
