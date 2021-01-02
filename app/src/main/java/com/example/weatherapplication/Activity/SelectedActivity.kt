@@ -60,8 +60,6 @@ class SelectedActivity : AppCompatActivity() {
 
 
     private fun deleteFromFirestore(){
-        val db = Firebase.firestore
-
         firestoreHelper = PostFirestoreModel()
         firestoreHelper.deleteFromFirestore(id!!)
         Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
@@ -70,15 +68,11 @@ class SelectedActivity : AppCompatActivity() {
     }
 
     private fun updateFirestore(){
-        val db = Firebase.firestore
 
         firestoreHelper = PostFirestoreModel()
-
         firestoreHelper.updateToFirestore(id!!,textViewEditText.text.toString())
 
-        Log.d(TAG, "textViewEditText: " + textViewEditText.text.toString())
         Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
-
         finish()
 
     }
