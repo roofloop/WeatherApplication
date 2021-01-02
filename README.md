@@ -13,7 +13,7 @@ The application can be run in two modes, one is offline mode and the other is on
 
 If the application runs in offline mode, the main activity will provide the user with diary inputs from the cache.
 
-###Caching (Offline mode)
+### Caching (Offline mode)
 
 #### *MainActivity*
 
@@ -78,7 +78,7 @@ The diaryInputsList will be added to an existing cache file through the CacheMod
                     
   
 
-###Caching (Online mode)
+### Caching (Online mode)
 If there is network available, we try to get data from firestore and we update our cache to make sure that it's up to date.
 
 #### *MainActivity*
