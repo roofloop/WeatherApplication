@@ -20,7 +20,6 @@ import java.io.*
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var addPost: FloatingActionButton
@@ -52,27 +51,26 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("tempString", tempString)
             startActivity(intent)
         }
-
     }
 
 
+
+
+
+
     private fun handleNetworkChanges()
-
     {
-
         NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConnected ->
+
+            // If there is no network available, try to populate the recyclerview based on the cache file.
             if (!isConnected)
             {
                 modeTextview?.text = "Offline Mode"
 
                 try {
 
-                    populateTheRecyclerView(cacheHelper.readCachedFile(this), false)
-
                     val diaryInputsList = cacheHelper.readCachedFile(this)
-
-                    for (item in diaryInputsList)
-                        Log.d(TAG, "Items in diaryInputsList from cache: ${item.diaryInput}")
+                    populateTheRecyclerView(diaryInputsList, false)
 
                 }catch (e: FileNotFoundException){
                     Log.d(TAG, "Cache file not found", e)
@@ -80,9 +78,8 @@ class MainActivity : AppCompatActivity() {
             }
             else
             {
-
+                // If there is a network available, get firestore data and populate the RV based on that.
                 modeTextview?.text = "Online Mode"
-
                 getFirestoreToRV()
                 getWeatherAsync()
             }
