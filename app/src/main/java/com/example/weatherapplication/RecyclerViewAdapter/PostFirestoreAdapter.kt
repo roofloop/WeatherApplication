@@ -25,6 +25,7 @@ class PostFirestoreAdapter (
 
         holder.itemView.stag_temp.text = firestoreList[position].temp
         holder.itemView.stag_text.text = firestoreList[position].diaryInput
+        holder.itemView.stag_date.text = firestoreList[position].creationDate
 
     }
 

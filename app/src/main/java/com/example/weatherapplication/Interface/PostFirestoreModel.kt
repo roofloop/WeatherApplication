@@ -1,20 +1,60 @@
 package com.example.weatherapplication.Interface
 
 
+import android.content.Context
 import android.util.Log
+import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
+import com.google.firebase.ktx.Firebase
 import java.lang.Exception
+import javax.security.auth.callback.Callback
 
 
 class PostFirestoreModel : PostFirestoreInterface {
 
     private val TAG: String = "PostFirestoreModel"
+    private val db = Firebase.firestore
+    private val cacheHelper: CacheModel = CacheModel()
+    private val settings = firestoreSettings {
+        isPersistenceEnabled = false
+    }
 
-    override fun addToFirestore(postFirestore: PostFirestore, db: FirebaseFirestore) {
+    override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
+        db.firestoreSettings = settings
+        val notesList = mutableListOf<PostFirestore>()
+        try {
+            db.collection("InputsDiary")
+                    .addSnapshotListener { snapshot, e ->
+                        notesList.clear()
 
-        try{
+                        if (snapshot != null && !snapshot.isEmpty) {
+                            for (doc in snapshot.documents) {
+                                val note = doc.toObject(PostFirestore::class.java)
+                                notesList.add(note!!)
+                                cacheHelper.createCachedFile(context, notesList)
+                            }
 
+                            callback(notesList)
+
+
+                        } else {
+                            //Refreshing the RV and cache if firestore is empty.
+                            cacheHelper.deleteCachedFile(context)
+                            callback(notesList)
+                        }
+                    }
+        } catch (e: Exception){
+            Log.d(TAG, "Failure", e)
+        }
+
+    }
+
+    override fun addToFirestore(postFirestore: PostFirestore) {
+
+        try {
             val newDiaryInputRef = db.collection("InputsDiary").document()
             postFirestore.id = newDiaryInputRef.id
 
@@ -30,11 +70,11 @@ class PostFirestoreModel : PostFirestoreInterface {
                     Log.w(TAG, "Error adding document", e)
                 }
 
-        }catch (e: Exception){
+        } catch (e: Exception){
             Log.w(TAG, "Error adding to firestore", e)
         }
     }
-    override fun deleteFromFirestore(id: String, db: FirebaseFirestore) {
+    override fun deleteFromFirestore(id: String) {
 
         db.collection("InputsDiary").document(id)
             .delete()
@@ -44,7 +84,7 @@ class PostFirestoreModel : PostFirestoreInterface {
             }
     }
 
-    override fun updateToFirestore(id: String, diaryInput: String, db: FirebaseFirestore) {
+    override fun updateToFirestore(id: String, diaryInput: String) {
         val updateDiaryInputRef = db.collection("InputsDiary").document(id)
 
         updateDiaryInputRef

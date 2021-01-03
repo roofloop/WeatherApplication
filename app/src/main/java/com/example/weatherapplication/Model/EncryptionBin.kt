@@ -13,6 +13,7 @@ object EncryptionBin {
             if (counter >= key.length) {
                 counter = 0
             }
+
             // convert the character to binary
             val convertPostChToBinary = convertToBinary(ch, 8)
             // convert the matching key-value at [counter] to binary
@@ -22,7 +23,6 @@ object EncryptionBin {
             encryptedPost.append(exclusiveOr(convertPostChToBinary, convertKeyChToBinary, false))
 
             counter += 1
-
         }
         println("Encrypted Post: $encryptedPost")
         // return the fully encrypted message

@@ -82,14 +82,14 @@ class AddPostActivity : AppCompatActivity() {
                 val db = Firebase.firestore
                 val task = PostFirestore()
 
-                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                val sdf = SimpleDateFormat("yyyy/M/dd hh:mm:ss")
                 val currentDate = sdf.format(Date())
 
                 task.temp = tempText
                 task.diaryInput = postEditText.text.toString()
                 task.creationDate = currentDate
 
-                firestoreHelper.addToFirestore(task, db)
+                firestoreHelper.addToFirestore(task)
 
                 Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
                 //startActivity(Intent(this, MainActivity::class.java))
