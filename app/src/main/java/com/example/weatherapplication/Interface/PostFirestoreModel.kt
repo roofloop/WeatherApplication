@@ -36,14 +36,17 @@ class PostFirestoreModel : PostFirestoreInterface {
                                 diaryInputsList.add(diaryInputs!!)
                             }
                             // Creating our cache file (or overwriting existing), with fresh data from firestore.
+                            /*
                             val sortedList = SortingFunctions.dateInsertionSorting(diaryInputsList)
                             for (count in 0 until sortedList.count()) {
                                 if (count <= 1) {
                                     diaryInputsListFinal.add(sortedList[count])
                                 }
                             }
-                            cacheHelper.createCachedFile(context, diaryInputsListFinal)
 
+
+                            cacheHelper.createCachedFile(context, diaryInputsListFinal)
+                            */
                             // Returning the up to date mutableList
                             callback(diaryInputsList)
 

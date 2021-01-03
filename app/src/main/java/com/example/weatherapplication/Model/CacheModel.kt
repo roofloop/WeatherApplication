@@ -32,25 +32,27 @@ class CacheModel : CacheInterface {
         diaryListFromCache.add(diaryInput)
         val combinedList: MutableList<PostFirestore> = diaryListFromCache
 
-        val p = combinedList.size
-        println("!!!CM CombinedList: $p")
+        val p = diaryListFromCache.size
+        println("!!!CM Combined DiaryList: $p")
 
-        out.writeObject(combinedList)
+        for (item in diaryListFromCache) {
+            val itemPost = item.diaryInput
+            println("!!!CM CombinedListItem: $itemPost")
+        }
+
+        out.writeObject(diaryListFromCache)
         out.close()
-
+        println("!!! efter close")
 
     }
 
 
-    override fun readCachedFile(context: Context,): MutableList<PostFirestore> {
+    override fun readCachedFile(context: Context): MutableList<PostFirestore> {
 
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
         val `in` = ObjectInputStream(FileInputStream(File(outputFile)))
         val mutableListObject = `in`.readObject()
         `in`.close()
-        val m = mutableListObject as MutableList<PostFirestore>
-        val mm = m.size
-        println("!!! readCache: $mm")
 
         return mutableListObject as MutableList<PostFirestore>
 

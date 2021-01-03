@@ -68,13 +68,12 @@ class MainActivity : AppCompatActivity() {
             // If there is no network available, try to populate the recyclerview based on the cache file.
             if (!isConnected)
             {
+                println("!!! handleNetwork NOT connected called")
                 modeTextview?.text = "Offline Mode"
 
                 try {
 
                     val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
-                    val d = diaryInputsList.size
-                    println("!!! inputlistoffline: $d")
                     populateTheRecyclerView(diaryInputsList, false)
 
                 }catch (e: FileNotFoundException){
@@ -92,9 +91,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getFirestoreToRV() {
+        println("!!! getFirestoreToRV called")
         val firestoreModel = PostFirestoreModel()
+        val diaryInputsListFinal = mutableListOf<PostFirestore>()
         firestoreModel.getFromFirestore(applicationContext) { list ->
             populateTheRecyclerView(list, true)
+            /*
+            val sortedList = SortingFunctions.dateInsertionSorting(list)
+            for (count in 0 until sortedList.count()) {
+                if (count <= 1) {
+                    diaryInputsListFinal.add(sortedList[count])
+                }
+            }
+            */
+
+            cacheHelper.createCachedFile(applicationContext, list)
         }
     }
 
@@ -146,7 +157,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // put your code here...'
-        handleNetworkChanges()
+        val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
+        val d = diaryInputsList.size
+        println("!!! onResume inputlist: $d")
+
+        //handleNetworkChanges()
     }
 
     override fun onBackPressed() {

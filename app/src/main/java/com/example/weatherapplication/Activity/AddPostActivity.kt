@@ -41,7 +41,7 @@ class AddPostActivity : AppCompatActivity() {
         savePostButton = findViewById(R.id.uploadPost)
 
         setupUI()
-        checkForCacheFile()
+        //checkForCacheFile()
 
         savePostButton.setOnClickListener {
             saveData()
@@ -74,11 +74,14 @@ class AddPostActivity : AppCompatActivity() {
                     diaryInput.diaryInput = postEditText.text.toString()
                     diaryInput.creationDate = currentDate
 
-
-                    cacheHelper.addToCacheFile(applicationContext, diaryInput)
+                    val diaryList = cacheHelper.readCachedFile(this)
+                    diaryList.add(diaryInput)
+                    cacheHelper.deleteCachedFile(this)
+                    cacheHelper.createCachedFile(this, diaryList)
+                    //cacheHelper.addToCacheFile(applicationContext, diaryInput)
 
                     // Try and save data to Firestore. If the network is unavailable, this data will be sent to Firestore later due to built-in offline data-persistence.
-                    firestoreHelper.addToFirestore(task)
+                    firestoreHelper.addToFirestore(diaryInput)
                     finish()
 
                 } else {
@@ -106,7 +109,7 @@ class AddPostActivity : AppCompatActivity() {
 
     private fun checkForCacheFile(): Boolean {
         return try {
-            cacheHelper.readCachedFile(this)
+            cacheHelper.readCachedFile(applicationContext)
             true
 
         }catch (e: FileNotFoundException){
