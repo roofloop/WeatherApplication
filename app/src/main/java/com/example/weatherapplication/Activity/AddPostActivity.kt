@@ -1,9 +1,5 @@
 package com.example.weatherapplication.Activity
 
-import android.content.Context
-import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,22 +15,21 @@ import com.example.weatherapplication.Model.DiaryUtility
 import com.example.weatherapplication.Model.PostFirestore
 import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import io.realm.Realm
 import java.io.FileNotFoundException
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class AddPostActivity : AppCompatActivity() {
     private lateinit var temperatureTextView: TextView
     private lateinit var postEditText: EditText
     private lateinit var tempText: String
     private lateinit var savePostButton: Button
-    private lateinit var realm: Realm
     private lateinit var firestoreHelper: PostFirestoreModel
     private val cacheHelper: CacheModel = CacheModel()
+    private val TAG: String = "AddPostActivity"
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -47,59 +42,83 @@ class AddPostActivity : AppCompatActivity() {
 
         postEditText = findViewById(R.id.post_EditText)
         savePostButton = findViewById(R.id.uploadPost)
-        handleNetworkChanges()
 
         setupUI()
+        checkForCacheFile()
+
+        savePostButton.setOnClickListener {
+            saveData()
+        }
 
     }
 
 
-    private fun handleNetworkChanges()
-    {
+    private fun saveData(){
 
-        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
-            if (!isConncted)
-            {
-                savePostButton.setOnClickListener {
-                    Toast.makeText(this, "Network is missing", Toast.LENGTH_SHORT).show()
-                }
-            }else{
-                savePostButton.setOnClickListener {
-                    saveDataToFirestore()
-
-                }
-            }
-        })
-    }
-
-
-    private fun saveDataToFirestore (){
         if(DiaryUtility.validateDiaryInput(postEditText.text.toString())) {
             try {
 
+                //In case the application is working in offline mode, we should save new posts to cache instead of to firestore.
                 firestoreHelper = PostFirestoreModel()
 
-                val db = Firebase.firestore
                 val task = PostFirestore()
+                val currentDate = getCurrentDate()
 
-                val sdf = SimpleDateFormat("yyyy/M/dd hh:mm:ss")
-                val currentDate = sdf.format(Date())
 
-                task.temp = tempText
-                task.diaryInput = postEditText.text.toString()
-                task.creationDate = currentDate
+                // If cache file exists, add the new diary input to the cache file, and then try and save data to firestore.
+                if (checkForCacheFile()) {
 
-                firestoreHelper.addToFirestore(task)
+                    val diaryInputsList = mutableListOf<PostFirestore>()
 
-                Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
-                //startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                    task.temp = tempText
+                    task.diaryInput = postEditText.text.toString()
+                    task.creationDate = currentDate
+
+                    diaryInputsList.add(task)
+
+                    cacheHelper.addToCacheFile(this, diaryInputsList)
+
+                    // Try and save data to Firestore. If the network is unavailable, this data will be sent to Firestore later due to built-in offline data-persistence.
+                    firestoreHelper.addToFirestore(task)
+                    finish()
+
+                } else {
+
+                    // If cache file does not exist, create a cache file and add the diary input to it.
+                    val diaryInputsList = mutableListOf<PostFirestore>()
+
+                    task.temp = tempText
+                    task.diaryInput = postEditText.text.toString()
+                    task.creationDate = currentDate
+                    diaryInputsList.add(task)
+
+                    cacheHelper.createCachedFile(this, diaryInputsList)
+                    firestoreHelper.addToFirestore(task)
+
+                    finish()
+
+                }
             } catch (e: Exception) {
                 Toast.makeText(this, "Failure", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(this, "You can't post en empty post!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+
+    private fun checkForCacheFile(): Boolean {
+        return try {
+            cacheHelper.readCachedFile(this)
+            true
+
+        }catch (e: FileNotFoundException){
+            Log.d(TAG, "Cache file not found", e)
+            false
+        }
+    }
+
+    private fun getCurrentDate() : String{
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        return sdf.format(Date())
     }
 
     private fun setupUI() {

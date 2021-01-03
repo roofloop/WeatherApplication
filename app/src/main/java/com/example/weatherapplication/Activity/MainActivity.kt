@@ -55,7 +55,9 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun handleNetworkChanges() {
+    private fun handleNetworkChanges()
+
+    {
 
         NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
             if (!isConncted)
@@ -151,7 +153,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // put your code here...
+        // put your code here...'
+        handleNetworkChanges()
     }
 
     override fun onBackPressed() {
