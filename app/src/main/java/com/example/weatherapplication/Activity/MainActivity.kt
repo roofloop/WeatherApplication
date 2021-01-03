@@ -52,31 +52,28 @@ class MainActivity : AppCompatActivity() {
         modeTextview = textViewOfflineMode
         handleNetworkChanges()
 
+        addPost.setOnClickListener {
+            val intent = Intent(this, AddPostActivity::class.java)
+            intent.putExtra("tempString", tempString)
+            startActivity(intent)
+        }
+        
     }
 
 
     private fun handleNetworkChanges()
-
     {
+        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConnected ->
 
-        NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
-            if (!isConncted)
+            // If there is no network available, try to populate the recyclerview based on the cache file.
+            if (!isConnected)
             {
                 modeTextview?.text = "Offline Mode"
 
-                addPost.setOnClickListener {
-
-                    Toast.makeText(this, "Network Fail", Toast.LENGTH_SHORT).show()
-
-                }
                 try {
 
-                    populateTheRecyclerView(cacheHelper.readCachedFile(this), false)
-
-                    val notesList = cacheHelper.readCachedFile(this)
-
-                    for (item in notesList)
-                        Log.d(TAG, "Items in noteslist from cache: ${item.creationDate}")
+                    val diaryInputsList = cacheHelper.readCachedFile(this)
+                    populateTheRecyclerView(diaryInputsList, false)
 
                 }catch (e: FileNotFoundException){
                     Log.d(TAG, "Cache file not found", e)
@@ -84,17 +81,10 @@ class MainActivity : AppCompatActivity() {
             }
             else
             {
-
+                // If there is a network available, get firestore data and populate the RV based on that.
                 modeTextview?.text = "Online Mode"
-
                 getFirestoreToRV()
                 getWeatherAsync()
-
-                addPost.setOnClickListener {
-                        val intent = Intent(this, AddPostActivity::class.java)
-                        intent.putExtra("tempString", tempString)
-                        startActivity(intent)
-                }
             }
         })
     }
