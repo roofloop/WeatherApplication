@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData
 
 object NetworkUtils : ConnectivityManager.NetworkCallback()
 {
-
     private val networkLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     /**
@@ -41,7 +40,6 @@ object NetworkUtils : ConnectivityManager.NetworkCallback()
 
         var isConnected = false
 
-
         // Retrieve current status of connectivity
         connectivityManager.allNetworks.forEach { network ->
             val networkCapability = connectivityManager.getNetworkCapabilities(network)
@@ -60,12 +58,10 @@ object NetworkUtils : ConnectivityManager.NetworkCallback()
         return networkLiveData
     }
 
-
     override fun onAvailable(network: Network)
     {
         networkLiveData.postValue(true)
     }
-
 
     override fun onLost(network: Network)
     {

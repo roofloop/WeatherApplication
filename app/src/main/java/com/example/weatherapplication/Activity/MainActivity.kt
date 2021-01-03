@@ -1,4 +1,4 @@
- package com.example.weatherapplication.Activity
+package com.example.weatherapplication.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -32,11 +32,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addPost: FloatingActionButton
     private lateinit var mFirestoreAdapter: PostFirestoreAdapter
-    private lateinit var firestoreButton: Button
     private var temperatureTextView: TextView? = null
     private var modeTextview: TextView? = null
     private val API_URL =
-        "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8cd3c8555e090df0d6917f60f2cc91a6"
+            "https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&appid=8cd3c8555e090df0d6917f60f2cc91a6"
 
     private var tempString: String? = null
     private val apiCallBack: WeatherDataModel = WeatherDataModel()
@@ -52,20 +51,13 @@ class MainActivity : AppCompatActivity() {
         val textView: TextView = findViewById(R.id.temperature)
         val textViewOfflineMode: TextView = findViewById(R.id.offlineMode)
 
-        firestoreButton = findViewById(R.id.toFirestore)
-
         temperatureTextView = textView
         modeTextview = textViewOfflineMode
-        //handleNetworkChanges()
 
         addPost.setOnClickListener {
             val intent = Intent(this, AddPostActivity::class.java)
             intent.putExtra("tempString", tempString)
             startActivity(intent)
-        }
-
-        firestoreButton.setOnClickListener {
-            getFirestoreToRV()
         }
 
     }
@@ -117,8 +109,8 @@ class MainActivity : AppCompatActivity() {
         mFirestoreAdapter = PostFirestoreAdapter(sortedList)
         postRV.adapter = mFirestoreAdapter
         postRV.layoutManager = StaggeredGridLayoutManager(
-            1,
-            LinearLayoutManager.VERTICAL
+                1,
+                LinearLayoutManager.VERTICAL
         )
 
         if (isConnected){
