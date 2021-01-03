@@ -55,9 +55,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun handleNetworkChanges()
-
-    {
+    private fun handleNetworkChanges() {
 
         NetworkUtils.getNetworkLiveData(applicationContext).observe(this, { isConncted ->
             if (!isConncted)
