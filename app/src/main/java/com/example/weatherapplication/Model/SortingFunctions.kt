@@ -13,7 +13,7 @@ object SortingFunctions {
             println(count)
             val listItem = list[count]
             var i = count
-            while (i > 0 && listItem.creationDate.toString() > list[i - 1].creationDate.toString()) {
+            while (i > 0 && listItem.creationDate.toString() < list[i - 1].creationDate.toString()) {
                 list[i] = list[i - 1]
                 i -= 1
             }
