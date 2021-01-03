@@ -18,8 +18,12 @@ class PostFirestoreModel : PostFirestoreInterface {
     private val db = Firebase.firestore
     private val cacheHelper: CacheModel = CacheModel()
 
-    override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
 
+    override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
+        val settings = firestoreSettings {
+            isPersistenceEnabled = false
+        }
+        db.firestoreSettings = settings
         val diaryInputsList = mutableListOf<PostFirestore>()
         val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
@@ -62,7 +66,10 @@ class PostFirestoreModel : PostFirestoreInterface {
     }
 
     override fun addToFirestore(postFirestore: PostFirestore) {
-
+        val settings = firestoreSettings {
+            isPersistenceEnabled = false
+        }
+        db.firestoreSettings = settings
         try {
             val newDiaryInputRef = db.collection("DiaryInputs").document()
             postFirestore.id = newDiaryInputRef.id

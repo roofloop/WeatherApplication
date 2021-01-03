@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         val textViewOfflineMode: TextView = findViewById(R.id.offlineMode)
         temperatureTextView = textView
         modeTextview = textViewOfflineMode
-        handleNetworkChanges()
+        //handleNetworkChanges()
 
         addPost.setOnClickListener {
             val intent = Intent(this, AddPostActivity::class.java)
@@ -96,6 +96,13 @@ class MainActivity : AppCompatActivity() {
         val diaryInputsListFinal = mutableListOf<PostFirestore>()
         firestoreModel.getFromFirestore(applicationContext) { list ->
             populateTheRecyclerView(list, true)
+
+            for (count in 0 until list.count()) {
+                if (count <= 1) {
+                    diaryInputsListFinal.add(list[count])
+                }
+            }
+
             /*
             val sortedList = SortingFunctions.dateInsertionSorting(list)
             for (count in 0 until sortedList.count()) {
@@ -104,8 +111,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             */
-
-            cacheHelper.createCachedFile(applicationContext, list)
+            cacheHelper.createCachedFile(applicationContext, diaryInputsListFinal)
         }
     }
 
@@ -161,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         val d = diaryInputsList.size
         println("!!! onResume inputlist: $d")
 
-        //handleNetworkChanges()
+        handleNetworkChanges()
     }
 
     override fun onBackPressed() {

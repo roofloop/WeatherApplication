@@ -102,6 +102,7 @@ class AddPostActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Toast.makeText(this, "Failure", Toast.LENGTH_SHORT).show()
+                println("!!! Exception addPost: $e")
             }
         }
     }
