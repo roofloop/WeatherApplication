@@ -82,7 +82,7 @@ class AddPostActivity : AppCompatActivity() {
                 val db = Firebase.firestore
                 val task = PostFirestore()
 
-                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                val sdf = SimpleDateFormat("yyyy/M/dd hh:mm:ss")
                 val currentDate = sdf.format(Date())
 
                 task.temp = tempText

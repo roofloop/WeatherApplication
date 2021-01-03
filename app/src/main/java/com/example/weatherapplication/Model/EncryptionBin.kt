@@ -11,14 +11,12 @@ object EncryptionBin {
             if (counter >= key.length) {
                 counter = 0
             }
-
             val convertPostChToBinary = convertToBinary(ch, 8)
             val convertKeyChToBinary = convertToBinary(key[counter], 8)
 
             encryptedPost.append(exclusiveOr(convertPostChToBinary, convertKeyChToBinary, false))
 
             counter += 1
-
         }
         println("Encrypted Post: $encryptedPost")
         return encryptedPost.toString()

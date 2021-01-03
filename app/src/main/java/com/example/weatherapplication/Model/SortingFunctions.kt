@@ -2,7 +2,7 @@ package com.example.weatherapplication.Model
 
 object SortingFunctions {
 
-    fun dateInsertionSorting(list: MutableList<String>): List<String> {
+    fun dateInsertionSorting(list: MutableList<PostFirestore>): MutableList<PostFirestore> {
 
         if (list.isEmpty() || list.size < 2) {
             return list
@@ -13,7 +13,7 @@ object SortingFunctions {
             println(count)
             val listItem = list[count]
             var i = count
-            while (i > 0 && listItem < list[i - 1]) {
+            while (i > 0 && listItem.creationDate.toString() > list[i - 1].creationDate.toString()) {
                 list[i] = list[i - 1]
                 i -= 1
             }
