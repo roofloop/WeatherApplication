@@ -22,53 +22,35 @@ class PostFirestoreModel : PostFirestoreInterface {
     override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
 
         val diaryInputsList = mutableListOf<PostFirestore>()
-        val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
         try {
             db.collection("DiaryInputs")
-                    .addSnapshotListener { snapshot, e ->
-                        diaryInputsList.clear()
-                        diaryInputsListFinal.clear()
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    diaryInputsList.clear()
 
+                    if (snapshot != null && !snapshot.isEmpty) {
+                        for (doc in snapshot.documents) {
+                            val diaryInputs = doc.toObject(PostFirestore::class.java)
 
-                        if (snapshot != null && !snapshot.isEmpty) {
-                            for (doc in snapshot.documents) {
-                                val diaryInputs = doc.toObject(PostFirestore::class.java)
-
-                                // Adding data from firestore to out mutableList
-                                diaryInputsList.add(diaryInputs!!)
-                            }
-                            // Creating our cache file (or overwriting existing), with fresh data from firestore.
-                            /*
-                            val sortedList = SortingFunctions.dateInsertionSorting(diaryInputsList)
-                            for (count in 0 until sortedList.count()) {
-                                if (count <= 1) {
-                                    diaryInputsListFinal.add(sortedList[count])
-                                }
-                            }
-
-                            */
-                            for (count in 0 until diaryInputsList.count()) {
-                                if (count <= 1) {
-                                    diaryInputsListFinal.add(diaryInputsList[count])
-                                }
-                            }
-
-                            for (item in diaryInputsListFinal) {
-                                val s = item.diaryInput
-                                println("!!! PostFirestoreModel; Before createCachedFile: $s")
-                            }
-
-                            cacheHelper.createCachedFile(context, diaryInputsListFinal)
-                            // Returning the up to date mutableList
-                            callback(diaryInputsList)
-
-                        } else {
-                            //Refreshing the RV and deleting the cache if firestore is empty.
-                            cacheHelper.deleteCachedFile(context)
-                            callback(diaryInputsList)
+                            // Adding data from firestore to out mutableList
+                            diaryInputsList.add(diaryInputs!!)
                         }
+                        // Creating our cache file (or overwriting existing), with fresh data from firestore.
+
+                        cacheHelper.createCachedFile(context, diaryInputsList)
+                        // Returning the up to date mutableList
+                        callback(diaryInputsList)
+
+                    } else {
+                        //Refreshing the RV and deleting the cache if firestore is empty.
+                        cacheHelper.deleteCachedFile(context)
+                        callback(diaryInputsList)
                     }
+                }
+                .addOnFailureListener { e ->
+                    Log.d(TAG, "Error getting documents: ", e)
+                }
         } catch (e: Exception){
             Log.d(TAG, "Failure", e)
         }

@@ -68,22 +68,6 @@ class MainActivity : AppCompatActivity() {
             getFirestoreToRV()
         }
 
-        //getFromCache()
-        
-    }
-
-    private fun getFromCache() {
-        try {
-            val s = cacheHelper.readCachedFile(applicationContext)
-            for (item in s) {
-                val p = item.diaryInput
-                println("!!! getFromCache: $p")
-            }
-            populateTheRecyclerView(s, false)
-        } catch (e: Exception) {
-            println("!!! Exception: $e")
-        }
-
     }
 
 
@@ -123,28 +107,8 @@ class MainActivity : AppCompatActivity() {
     private fun getFirestoreToRV() {
         println("!!! getFirestoreToRV called")
         val firestoreModel = PostFirestoreModel()
-        val diaryInputsListFinal = mutableListOf<PostFirestore>()
         firestoreModel.getFromFirestore(applicationContext) { list ->
             populateTheRecyclerView(list, true)
-
-            /*
-            for (count in 0 until list.count()) {
-                if (count <= 1) {
-                    diaryInputsListFinal.add(list[count])
-                }
-            }
-
-             */
-
-            /*
-            val sortedList = SortingFunctions.dateInsertionSorting(list)
-            for (count in 0 until sortedList.count()) {
-                if (count <= 1) {
-                    diaryInputsListFinal.add(sortedList[count])
-                }
-            }
-            */
-            //cacheHelper.createCachedFile(applicationContext, diaryInputsListFinal)
         }
     }
 
@@ -196,11 +160,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // put your code here...'
-        //val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
-        //val d = diaryInputsList.size
-        //println("!!! onResume inputlist: $d")
-        getFromCache()
-        //handleNetworkChanges()
+        handleNetworkChanges()
     }
 
     override fun onBackPressed() {

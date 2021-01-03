@@ -10,16 +10,25 @@ class CacheModel : CacheInterface {
 
     @Throws(IOException::class)
     override fun createCachedFile(context: Context, diaryInputsList: MutableList<PostFirestore>) {
+        val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
         val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
 
-        out.writeObject(diaryInputsList)
+        val sortedList = SortingFunctions.dateInsertionSorting(diaryInputsList)
+        for (count in 0 until sortedList.count()) {
+            if (count <= 3) {
+                diaryInputsListFinal.add(sortedList[count])
+            }
+        }
+
+        out.writeObject(diaryInputsListFinal)
         out.close()
 
     }
 
     override fun addToCacheFile(context: Context, diaryInput: PostFirestore) {
+        val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
         val diaryListFromCache = readCachedFile(context)
         val c = diaryListFromCache.size
@@ -30,19 +39,15 @@ class CacheModel : CacheInterface {
         val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
 
         diaryListFromCache.add(diaryInput)
-        val combinedList: MutableList<PostFirestore> = diaryListFromCache
-
-        val p = diaryListFromCache.size
-        println("!!!CM Combined DiaryList: $p")
-
-        for (item in diaryListFromCache) {
-            val itemPost = item.diaryInput
-            println("!!!CM CombinedListItem: $itemPost")
+        val sortedList = SortingFunctions.dateInsertionSorting(diaryListFromCache)
+        for (count in 0 until sortedList.count()) {
+            if (count <= 3) {
+                diaryInputsListFinal.add(sortedList[count])
+            }
         }
 
-        out.writeObject(diaryListFromCache)
+        out.writeObject(diaryInputsListFinal)
         out.close()
-        println("!!! efter close")
 
     }
 
