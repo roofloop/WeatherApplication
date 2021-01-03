@@ -12,6 +12,7 @@ import com.example.weatherapplication.Interface.PostFirestoreModel
 import com.example.weatherapplication.RecyclerViewAdapter.PostFirestoreAdapter
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
+import com.example.weatherapplication.Model.SortingFunctions
 import com.example.weatherapplication.Model.WeatherDataModel
 import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
@@ -106,7 +107,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun populateTheRecyclerView(notesList: MutableList<PostFirestore>, isConnected: Boolean) {
-        mFirestoreAdapter = PostFirestoreAdapter(notesList)
+        val sortedList = SortingFunctions.dateInsertionSorting(notesList)
+        mFirestoreAdapter = PostFirestoreAdapter(sortedList)
         postRV.adapter = mFirestoreAdapter
         postRV.layoutManager = StaggeredGridLayoutManager(
             1,
