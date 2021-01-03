@@ -13,13 +13,14 @@ class SortingFunctionsTest {
     val post5 = PostFirestore("5", "jildfg", "12", "2020-07-12, 10:02")
     val list = mutableListOf(post4, post5, post3, post1, post2)
     val correctList = mutableListOf(post1, post2, post3, post4, post5)
+    val correctListDescending = mutableListOf(post5, post4, post3, post2, post1)
 
     @Test
     fun `returning correct list thrue insertion sorting`() {
         //val list = mutableListOf("2020-04-22, 18:55", "2020-07-12, 10:02", "2019-01-01, 23:03", "2016-10-12, 18:33", "2016-10-12, 12:24")
         //val correctList = mutableListOf("2016-10-12, 12:24", "2016-10-12, 18:33", "2019-01-01, 23:03", "2020-04-22, 18:55", "2020-07-12, 10:02")
         val result = SortingFunctions.dateInsertionSorting(list)
-        assertThat(result).isEqualTo(correctList)
+        assertThat(result).isEqualTo(correctListDescending)
     }
 
     @Test
