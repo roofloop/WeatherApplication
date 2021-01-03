@@ -6,8 +6,9 @@ import java.io.IOException
 
 interface CacheInterface {
 
-    fun createCachedFile(context: Context, notesList: MutableList<PostFirestore>)
+    fun createCachedFile(context: Context, diaryInputsList: MutableList<PostFirestore>)
     @Throws(IOException::class, ClassNotFoundException::class)
     fun readCachedFile(context: Context): MutableList<PostFirestore>
     fun deleteCachedFile(context: Context): Boolean
+    fun addToCacheFile(context: Context, diaryInputsList: MutableList<PostFirestore>)
 }

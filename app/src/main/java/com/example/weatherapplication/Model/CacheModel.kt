@@ -4,54 +4,49 @@ import android.content.Context
 import android.util.Log
 import com.example.weatherapplication.Interface.CacheInterface
 import java.io.*
-import java.text.SimpleDateFormat
-import java.util.*
+import okhttp3.Cache;
+
 
 
 class CacheModel : CacheInterface {
 
     @Throws(IOException::class)
-    override fun createCachedFile(context: Context, notesList: MutableList<PostFirestore>) {
-
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-        val currentDate = sdf.format(Date())
-
+    override fun createCachedFile(context: Context, diaryInputsList: MutableList<PostFirestore>) {
 
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
+        val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
 
-        var size: Long = 0
-        val cacheDirectory = context.cacheDir
-
-        val files: Array<File> = cacheDirectory.listFiles()!!
-        for (f in files) {
-            size += f.length()
-        }
-
-        Log.d("TAG", "Cache size:  $size")
-
-
-        val out: ObjectOutput = ObjectOutputStream(
-                FileOutputStream(
-                        File(outputFile)
-                )
-        )
-        out.writeObject(notesList)
-        Log.d("TAG", "notesList in cache:  $notesList")
+        out.writeObject(diaryInputsList)
         out.close()
+
     }
 
-    override fun readCachedFile(context: Context): MutableList<PostFirestore> {
+    override fun addToCacheFile(context: Context, diaryInputsList: MutableList<PostFirestore>) {
+
+        val diaryListFromCache = readCachedFile(context)
+
+        //OutputStream that we will write our combined list to
+        val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
+        val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
+
+        val combinedList = diaryInputsList + diaryListFromCache
+
+        out.writeObject(combinedList)
+        out.close()
+
+
+    }
+
+
+    override fun readCachedFile(context: Context,): MutableList<PostFirestore> {
 
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
-
-        val `in` = ObjectInputStream(
-                FileInputStream(File(outputFile))
-        )
+        val `in` = ObjectInputStream(FileInputStream(File(outputFile)))
         val mutableListObject = `in`.readObject()
-        Log.d("TAG", "CACHE listObject $mutableListObject")
         `in`.close()
 
         return mutableListObject as MutableList<PostFirestore>
+
     }
 
     override fun deleteCachedFile(context: Context): Boolean {
@@ -60,4 +55,6 @@ class CacheModel : CacheInterface {
 
         return outputFile.deleteRecursively()
     }
+
+
 }
