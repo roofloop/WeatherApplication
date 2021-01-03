@@ -20,10 +20,7 @@ class PostFirestoreModel : PostFirestoreInterface {
 
 
     override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
-        val settings = firestoreSettings {
-            isPersistenceEnabled = false
-        }
-        db.firestoreSettings = settings
+
         val diaryInputsList = mutableListOf<PostFirestore>()
         val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
@@ -31,6 +28,8 @@ class PostFirestoreModel : PostFirestoreInterface {
             db.collection("DiaryInputs")
                     .addSnapshotListener { snapshot, e ->
                         diaryInputsList.clear()
+                        diaryInputsListFinal.clear()
+
 
                         if (snapshot != null && !snapshot.isEmpty) {
                             for (doc in snapshot.documents) {
@@ -48,9 +47,19 @@ class PostFirestoreModel : PostFirestoreInterface {
                                 }
                             }
 
+                            */
+                            for (count in 0 until diaryInputsList.count()) {
+                                if (count <= 1) {
+                                    diaryInputsListFinal.add(diaryInputsList[count])
+                                }
+                            }
+
+                            for (item in diaryInputsListFinal) {
+                                val s = item.diaryInput
+                                println("!!! PostFirestoreModel; Before createCachedFile: $s")
+                            }
 
                             cacheHelper.createCachedFile(context, diaryInputsListFinal)
-                            */
                             // Returning the up to date mutableList
                             callback(diaryInputsList)
 
@@ -66,10 +75,7 @@ class PostFirestoreModel : PostFirestoreInterface {
     }
 
     override fun addToFirestore(postFirestore: PostFirestore) {
-        val settings = firestoreSettings {
-            isPersistenceEnabled = false
-        }
-        db.firestoreSettings = settings
+
         try {
             val newDiaryInputRef = db.collection("DiaryInputs").document()
             postFirestore.id = newDiaryInputRef.id

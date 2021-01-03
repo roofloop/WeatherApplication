@@ -3,6 +3,7 @@
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
+import java.lang.Exception
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addPost: FloatingActionButton
     private lateinit var mFirestoreAdapter: PostFirestoreAdapter
+    private lateinit var firestoreButton: Button
     private var temperatureTextView: TextView? = null
     private var modeTextview: TextView? = null
     private val API_URL =
@@ -48,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         addPost = findViewById(R.id.addPost)
         val textView: TextView = findViewById(R.id.temperature)
         val textViewOfflineMode: TextView = findViewById(R.id.offlineMode)
+
+        firestoreButton = findViewById(R.id.toFirestore)
+
         temperatureTextView = textView
         modeTextview = textViewOfflineMode
         //handleNetworkChanges()
@@ -57,7 +63,27 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("tempString", tempString)
             startActivity(intent)
         }
+
+        firestoreButton.setOnClickListener {
+            getFirestoreToRV()
+        }
+
+        //getFromCache()
         
+    }
+
+    private fun getFromCache() {
+        try {
+            val s = cacheHelper.readCachedFile(applicationContext)
+            for (item in s) {
+                val p = item.diaryInput
+                println("!!! getFromCache: $p")
+            }
+            populateTheRecyclerView(s, false)
+        } catch (e: Exception) {
+            println("!!! Exception: $e")
+        }
+
     }
 
 
@@ -74,6 +100,10 @@ class MainActivity : AppCompatActivity() {
                 try {
 
                     val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
+                    for (diary in diaryInputsList) {
+                        val p = diary.diaryInput
+                        println("!!! Main, Cache before populate (offline): $p")
+                    }
                     populateTheRecyclerView(diaryInputsList, false)
 
                 }catch (e: FileNotFoundException){
@@ -97,11 +127,14 @@ class MainActivity : AppCompatActivity() {
         firestoreModel.getFromFirestore(applicationContext) { list ->
             populateTheRecyclerView(list, true)
 
+            /*
             for (count in 0 until list.count()) {
                 if (count <= 1) {
                     diaryInputsListFinal.add(list[count])
                 }
             }
+
+             */
 
             /*
             val sortedList = SortingFunctions.dateInsertionSorting(list)
@@ -111,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             */
-            cacheHelper.createCachedFile(applicationContext, diaryInputsListFinal)
+            //cacheHelper.createCachedFile(applicationContext, diaryInputsListFinal)
         }
     }
 
@@ -163,11 +196,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // put your code here...'
-        val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
-        val d = diaryInputsList.size
-        println("!!! onResume inputlist: $d")
-
-        handleNetworkChanges()
+        //val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
+        //val d = diaryInputsList.size
+        //println("!!! onResume inputlist: $d")
+        getFromCache()
+        //handleNetworkChanges()
     }
 
     override fun onBackPressed() {

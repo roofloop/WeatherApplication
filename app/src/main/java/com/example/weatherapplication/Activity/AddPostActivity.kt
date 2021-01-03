@@ -76,13 +76,24 @@ class AddPostActivity : AppCompatActivity() {
 
                     val diaryList = cacheHelper.readCachedFile(this)
                     diaryList.add(diaryInput)
-                    cacheHelper.deleteCachedFile(this)
-                    cacheHelper.createCachedFile(this, diaryList)
-                    //cacheHelper.addToCacheFile(applicationContext, diaryInput)
 
+                    //cacheHelper.deleteCachedFile(this)
+                    //cacheHelper.createCachedFile(this, diaryList)
+                    val d = cacheHelper.readCachedFile(applicationContext)
+                    for (diary in d) {
+                        val p = diary.diaryInput
+                        println("!!! Addpost, Cache INNAN write: $p")
+                    }
+
+                    cacheHelper.addToCacheFile(applicationContext, diaryInput)
+                    val s = cacheHelper.readCachedFile(applicationContext)
+                    for (diary in s) {
+                        val p = diary.diaryInput
+                        println("!!! Addpost, Cache after write: $p")
+                    }
                     // Try and save data to Firestore. If the network is unavailable, this data will be sent to Firestore later due to built-in offline data-persistence.
                     firestoreHelper.addToFirestore(diaryInput)
-                    finish()
+                    //finish()
 
                 } else {
 
@@ -97,7 +108,7 @@ class AddPostActivity : AppCompatActivity() {
                     cacheHelper.createCachedFile(applicationContext, diaryInputsList)
                     firestoreHelper.addToFirestore(task)
 
-                    finish()
+                    //finish()
 
                 }
             } catch (e: Exception) {
