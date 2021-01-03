@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.PostFirestore
+import com.example.weatherapplication.Model.SortingFunctions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
@@ -20,6 +21,7 @@ class PostFirestoreModel : PostFirestoreInterface {
     override fun getFromFirestore(context: Context, callback: (MutableList<PostFirestore>) -> Unit) {
 
         val diaryInputsList = mutableListOf<PostFirestore>()
+        val diaryInputsListFinal = mutableListOf<PostFirestore>()
 
         try {
             db.collection("DiaryInputs")
@@ -34,7 +36,13 @@ class PostFirestoreModel : PostFirestoreInterface {
                                 diaryInputsList.add(diaryInputs!!)
                             }
                             // Creating our cache file (or overwriting existing), with fresh data from firestore.
-                            cacheHelper.createCachedFile(context, diaryInputsList)
+                            val sortedList = SortingFunctions.dateInsertionSorting(diaryInputsList)
+                            for (count in 0 until sortedList.count()) {
+                                if (count <= 1) {
+                                    diaryInputsListFinal.add(sortedList[count])
+                                }
+                            }
+                            cacheHelper.createCachedFile(context, diaryInputsListFinal)
 
                             // Returning the up to date mutableList
                             callback(diaryInputsList)

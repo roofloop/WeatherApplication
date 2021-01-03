@@ -10,5 +10,5 @@ interface CacheInterface {
     @Throws(IOException::class, ClassNotFoundException::class)
     fun readCachedFile(context: Context): MutableList<PostFirestore>
     fun deleteCachedFile(context: Context): Boolean
-    fun addToCacheFile(context: Context, diaryInputsList: MutableList<PostFirestore>)
+    fun addToCacheFile(context: Context, diaryInput: PostFirestore)
 }

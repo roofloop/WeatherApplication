@@ -13,14 +13,11 @@ import com.example.weatherapplication.Interface.PostFirestoreModel
 import com.example.weatherapplication.Model.CacheModel
 import com.example.weatherapplication.Model.DiaryUtility
 import com.example.weatherapplication.Model.PostFirestore
-import com.example.weatherapplication.NetworkUtils
 import com.example.weatherapplication.R
-import io.realm.Realm
 import java.io.FileNotFoundException
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class AddPostActivity : AppCompatActivity() {
     private lateinit var temperatureTextView: TextView
@@ -68,15 +65,17 @@ class AddPostActivity : AppCompatActivity() {
                 // If cache file exists, add the new diary input to the cache file, and then try and save data to firestore.
                 if (checkForCacheFile()) {
 
-                    val diaryInputsList = mutableListOf<PostFirestore>()
+                    val diaryInput = PostFirestore()
 
                     task.temp = tempText
                     task.diaryInput = postEditText.text.toString()
                     task.creationDate = currentDate
+                    diaryInput.temp = tempText
+                    diaryInput.diaryInput = postEditText.text.toString()
+                    diaryInput.creationDate = currentDate
 
-                    diaryInputsList.add(task)
 
-                    cacheHelper.addToCacheFile(this, diaryInputsList)
+                    cacheHelper.addToCacheFile(applicationContext, diaryInput)
 
                     // Try and save data to Firestore. If the network is unavailable, this data will be sent to Firestore later due to built-in offline data-persistence.
                     firestoreHelper.addToFirestore(task)
@@ -92,7 +91,7 @@ class AddPostActivity : AppCompatActivity() {
                     task.creationDate = currentDate
                     diaryInputsList.add(task)
 
-                    cacheHelper.createCachedFile(this, diaryInputsList)
+                    cacheHelper.createCachedFile(applicationContext, diaryInputsList)
                     firestoreHelper.addToFirestore(task)
 
                     finish()
@@ -117,7 +116,7 @@ class AddPostActivity : AppCompatActivity() {
     }
 
     private fun getCurrentDate() : String{
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val sdf = SimpleDateFormat("yyyy/M/dd hh:mm:ss")
         return sdf.format(Date())
     }
 

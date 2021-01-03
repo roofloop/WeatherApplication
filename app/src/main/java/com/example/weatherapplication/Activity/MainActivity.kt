@@ -72,7 +72,9 @@ class MainActivity : AppCompatActivity() {
 
                 try {
 
-                    val diaryInputsList = cacheHelper.readCachedFile(this)
+                    val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
+                    val d = diaryInputsList.size
+                    println("!!! inputlistoffline: $d")
                     populateTheRecyclerView(diaryInputsList, false)
 
                 }catch (e: FileNotFoundException){
@@ -91,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getFirestoreToRV() {
         val firestoreModel = PostFirestoreModel()
-        firestoreModel.getFromFirestore(this) { list ->
+        firestoreModel.getFromFirestore(applicationContext) { list ->
             populateTheRecyclerView(list, true)
         }
     }

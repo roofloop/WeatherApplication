@@ -4,8 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.example.weatherapplication.Interface.CacheInterface
 import java.io.*
-import okhttp3.Cache;
-
 
 
 class CacheModel : CacheInterface {
@@ -21,15 +19,21 @@ class CacheModel : CacheInterface {
 
     }
 
-    override fun addToCacheFile(context: Context, diaryInputsList: MutableList<PostFirestore>) {
+    override fun addToCacheFile(context: Context, diaryInput: PostFirestore) {
 
         val diaryListFromCache = readCachedFile(context)
+        val c = diaryListFromCache.size
+        println("!!! CM From Cache: $c")
 
         //OutputStream that we will write our combined list to
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
         val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
 
-        val combinedList = diaryInputsList + diaryListFromCache
+        diaryListFromCache.add(diaryInput)
+        val combinedList: MutableList<PostFirestore> = diaryListFromCache
+
+        val p = combinedList.size
+        println("!!!CM CombinedList: $p")
 
         out.writeObject(combinedList)
         out.close()
@@ -44,6 +48,9 @@ class CacheModel : CacheInterface {
         val `in` = ObjectInputStream(FileInputStream(File(outputFile)))
         val mutableListObject = `in`.readObject()
         `in`.close()
+        val m = mutableListObject as MutableList<PostFirestore>
+        val mm = m.size
+        println("!!! readCache: $mm")
 
         return mutableListObject as MutableList<PostFirestore>
 
