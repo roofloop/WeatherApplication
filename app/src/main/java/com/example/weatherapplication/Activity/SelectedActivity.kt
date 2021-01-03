@@ -60,7 +60,6 @@ class SelectedActivity : AppCompatActivity() {
 
 
     private fun deleteFromFirestore(){
-        val db = Firebase.firestore
 
         firestoreHelper = PostFirestoreModel()
         firestoreHelper.deleteFromFirestore(id!!)
@@ -70,7 +69,6 @@ class SelectedActivity : AppCompatActivity() {
     }
 
     private fun updateFirestore(){
-        val db = Firebase.firestore
 
         firestoreHelper = PostFirestoreModel()
 
