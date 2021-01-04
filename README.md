@@ -24,7 +24,7 @@ If the application runs in offline mode, the main activity will provide the user
     {
         try {
     
-            val diaryInputsList = cacheHelper.readCachedFile(this)
+            val diaryInputsList = cacheHelper.readCachedFile(applicationContext)
             populateTheRecyclerView(diaryInputsList, false)
     
         }catch (e: FileNotFoundException){
@@ -55,20 +55,30 @@ When the user wants to add new inputs to the diary and proceeds to the AddPostAc
     
     } 
 
-The diaryInputsList will be added to an existing cache file through the CacheModel.
+The diaryInputs will be added to an existing cache file through the CacheModel.
 
 #### *CacheModel*
 
 
-    override fun addToCacheFile(context: Context, diaryInputsList: MutableList<PostFirestore>) {
+    override fun addToCacheFile(context: Context, diaryInput: PostFirestore) {
 
+        val diaryInputsListFinal = mutableListOf<PostFirestore>()
         val diaryListFromCache = readCachedFile(context)
+
 
         //OutputStream that we will write our combined list to
         val outputFile = File(context.cacheDir, "cache").toString() + ".tmp"
         val out = ObjectOutputStream(FileOutputStream(File(outputFile)))
 
-        val combinedList = diaryInputsList + diaryListFromCache
+        diaryListFromCache.add(diaryInput)
+        val sortedList = SortingFunctions.dateInsertionSorting(diaryListFromCache)
+        
+        //Make sure that the final list is not larger than 4 elements.
+        for (count in 0 until sortedList.count()) {
+            if (count <= 3) {
+                diaryInputsListFinal.add(sortedList[count])
+            }
+        }
 
         out.writeObject(combinedList)
         out.close()
